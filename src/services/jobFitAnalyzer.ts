@@ -16,15 +16,17 @@ const skills: SkillRule[] = [
   { label: "REST API", patterns: [/\brest(?:ful)?\s*(?:api)?\b/i, /\bapi integration\b/i], candidateLevel: 1, weight: 8 },
   { label: "OAuth / Authentication", patterns: [/\boauth\b/i, /\bauthentication\b/i, /\bauthorization\b/i], candidateLevel: 1, weight: 7 },
   { label: "Node.js", patterns: [/\bnode(?:\.js|js)\b/i, /\bexpress(?:\.js|js)?\b/i], candidateLevel: 0.8, weight: 7 },
+  { label: "NestJS", patterns: [/\bnest(?:\.js|js)\b/i], candidateLevel: 0.45, weight: 6, gapText: "NestJS 經驗較少，但可由 Node.js／TypeScript 經驗延伸。" },
   { label: "Java", patterns: [/\bjava\b/i], candidateLevel: 0.75, weight: 6 },
   { label: "C#", patterns: [/\bc#\b/i, /\b\.net\b/i], candidateLevel: 0.15, weight: 8, gapText: "C#／.NET 經驗較少。" },
   { label: "Python", patterns: [/\bpython\b/i], candidateLevel: 0.15, weight: 9, gapText: "Python 不是目前的主要技術棧。" },
   { label: "FastAPI", patterns: [/\bfastapi\b/i], candidateLevel: 0.05, weight: 8, gapText: "缺少 FastAPI 實務經驗。" },
   { label: "AWS", patterns: [/\baws\b/i, /\bamazon web services\b/i], candidateLevel: 0.3, weight: 7, gapText: "AWS 雲端實務經驗較少。" },
+  { label: "Azure / GCP", patterns: [/\bazure\b/i, /\bgcp\b/i, /\bgoogle cloud\b/i, /\bcloud platforms?\b/i], candidateLevel: 0.4, weight: 6, gapText: "Cloud（AWS／Azure／GCP）實務仍可補強。" },
   { label: "Terraform", patterns: [/\bterraform\b/i, /\binfrastructure as code\b/i, /\biac\b/i], candidateLevel: 0.1, weight: 6, gapText: "缺少 Terraform／Infrastructure as Code 經驗。" },
   { label: "Streaming", patterns: [/\bstreaming\b/i, /\bkafka\b/i, /\bkinesis\b/i, /\bevent[- ]driven\b/i], candidateLevel: 0.2, weight: 7, gapText: "Streaming／事件驅動系統經驗較少。" },
   { label: "Git", patterns: [/\bgit\b/i, /\bgithub\b/i], candidateLevel: 1, weight: 5 },
-  { label: "CI/CD", patterns: [/\bci\/cd\b/i, /\bcontinuous integration\b/i, /\bgithub actions\b/i], candidateLevel: 0.85, weight: 6 },
+  { label: "CI/CD", patterns: [/\bci\/cd\b/i, /\bcontinuous integration\b/i, /\bgithub actions\b/i], candidateLevel: 0.65, weight: 6, gapText: "有 CI/CD 接觸經驗，但仍可補強實際建置與維護證據。" },
   { label: "Microservices", patterns: [/\bmicroservices?\b/i], candidateLevel: 0.8, weight: 6 },
   { label: "Frontend Architecture", patterns: [/\bfrontend architecture\b/i, /\barchitectural decisions?\b/i, /\bdesign patterns?\b/i], candidateLevel: 1, weight: 8 },
   { label: "Reusable Components", patterns: [/\breusable components?\b/i, /\bcomponent librar(?:y|ies)\b/i, /\bdesign system\b/i], candidateLevel: 1, weight: 8 },
@@ -75,7 +77,11 @@ export function analyzeJobFit(jobDescription: string, parsed: ParsedJob): JobFit
       : rule.gapText ?? `${rule.label} 經驗仍需補強。`);
 
   const englishRequired = /\b(proficient|fluent|professional|excellent|strong|working proficiency|communicat\w*)\s+(?:written\s+and\s+spoken\s+)?(?:in\s+)?english\b|\benglish\s+(?:required|language|proficiency|skills?|fluency)\b/i.test(text);
-  const localLanguage = text.match(/\b(german|danish|swedish|finnish|dutch|french|norwegian)\s+(?:required|language|fluency|proficiency|speaker)\b/i)?.[1];
+  const localLanguage =
+    text.match(/\b(german|danish|swedish|finnish|dutch|french|norwegian)\s+(?:required|language|fluency|proficiency|speaker)\b/i)?.[1] ??
+    (/\b(?:dansk)\b.{0,100}\b(?:engelsk)\b|\b(?:engelsk)\b.{0,100}\b(?:dansk)\b/is.test(text) ? "Danish" : undefined) ??
+    (/\b(?:svenska)\b.{0,100}\b(?:engelska)\b|\b(?:engelska)\b.{0,100}\b(?:svenska)\b/is.test(text) ? "Swedish" : undefined) ??
+    (/\b(?:norsk)\b.{0,100}\b(?:engelsk)\b|\b(?:engelsk)\b.{0,100}\b(?:norsk)\b/is.test(text) ? "Norwegian" : undefined);
   const language = localLanguage
     ? `需要 ${localLanguage[0].toUpperCase()}${localLanguage.slice(1)}`
     : englishRequired ? "英文即可" : "未知";

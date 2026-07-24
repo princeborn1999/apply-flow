@@ -25,6 +25,7 @@ const cleanCompany = (value: string) =>
 const invalidCompanyNames = new Set([
   "we", "our", "the company", "company", "team", "role", "about us",
   "engineering", "product", "remote", "job description",
+  "vi", "vores", "virksomheden", "teamet", "stillingen", "om os",
 ]);
 
 const plausibleCompany = (value: string) => {
@@ -39,17 +40,25 @@ const extractCompany = (text: string, lines: string[]): string => {
   const labeled = plausibleCompany(labeledValue(text, ["company", "公司", "employer", "organization"]));
   if (labeled) return labeled;
 
-  // Common company-site and LinkedIn headings: "About Invert", "At Invert", "Join Invert".
+  // Common English and Danish headings: "About Invert", "At Invert", "Om Opacity", "Hos Opacity".
   for (const line of lines.slice(0, 40)) {
-    const heading = line.match(/^(?:about|at|join|welcome to)\s+([A-Z][A-Za-z0-9&.'-]*(?:\s+[A-Z][A-Za-z0-9&.'-]*){0,3})(?:\s*[|–—-]|[:,.]|$)/i);
+    const heading = line.match(/^(?:about|at|join|welcome to|om|hos)\s+([A-ZÆØÅ][A-Za-zÆØÅæøå0-9&.'-]*(?:\s+[A-ZÆØÅ][A-Za-zÆØÅæøå0-9&.'-]*){0,3})(?:\s*[|–—-]|[:,.]|$)/i);
     const candidate = plausibleCompany(heading?.[1] ?? "");
+    if (candidate) return candidate;
+  }
+
+  for (const line of lines.slice(0, 50)) {
+    const danishContext = line.match(
+      /(?:^|\s)(?:hos\s+|en\s+del\s+af\s+)([A-ZÆØÅ][A-Za-zÆØÅæøå0-9&.'-]*(?:\s+[A-ZÆØÅ][A-Za-zÆØÅæøå0-9&.'-]*){0,3})(?:[:,.]|\s+(?:søger|arbejder|bygger|udvikler)\b)/i,
+    );
+    const candidate = plausibleCompany(danishContext?.[1] ?? "");
     if (candidate) return candidate;
   }
 
   // Company introductions may appear after the job title rather than on the first line.
   for (const line of lines.slice(0, 50)) {
     const introduction = line.match(
-      /^(?:At\s+)?([A-Z][A-Za-z0-9&.'-]*(?:\s+[A-Z][A-Za-z0-9&.'-]*){0,3})\s+(?:operates|is|builds|provides|offers|develops|creates|helps|has|was|works|enables|makes|empowers|transforms|believes)\b/i,
+      /^(?:At\s+)?([A-ZÆØÅ][A-Za-zÆØÅæøå0-9&.'-]*(?:\s+[A-ZÆØÅ][A-Za-zÆØÅæøå0-9&.'-]*){0,3})\s+(?:operates|is|builds|provides|offers|develops|creates|helps|has|was|works|enables|makes|empowers|transforms|believes|søger|arbejder|bygger|udvikler|hjælper)\b/i,
     );
     const candidate = plausibleCompany(introduction?.[1] ?? "");
     if (candidate) return candidate;
