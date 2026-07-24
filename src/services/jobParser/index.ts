@@ -6,55 +6,92 @@ export interface JobParser {
 
 const labeledValue = (text: string, labels: string[]): string => {
   const pattern = new RegExp(
-    `(?:^|\\n)\\s*(?:${labels.join("|")})\\s*[:：-]\\s*([^\\n]+)`,
+    `(?:^|\\n)\\s*(?:${labels.join("|")})\\s*[:：]\\s*([^\\n]+)`,
     "i",
   );
   return text.match(pattern)?.[1]?.trim() ?? "";
 };
 
 const cleanLine = (value: string) =>
-  value.replace(/^[•∙·-]\s*/, "").replace(/\s+/g, " ").trim();
+  value.replace(/^[•·*▪–—-]\s*/, "").replace(/\s+/g, " ").trim();
+
+const cleanCompany = (value: string) =>
+  cleanLine(value)
+    .replace(/^(?:at|about|join|welcome to)\s+/i, "")
+    .replace(/[™®©]/g, "")
+    .replace(/[,:;.]\s*$/, "")
+    .trim();
+
+const invalidCompanyNames = new Set([
+  "we", "our", "the company", "company", "team", "role", "about us",
+  "engineering", "product", "remote", "job description",
+]);
+
+const plausibleCompany = (value: string) => {
+  const cleaned = cleanCompany(value);
+  if (!cleaned || cleaned.length > 60 || cleaned.split(/\s+/).length > 5) return "";
+  if (invalidCompanyNames.has(cleaned.toLowerCase())) return "";
+  if (/^(?:senior|junior|staff|lead|principal|frontend|backend|full[- ]stack|software)\b/i.test(cleaned)) return "";
+  return cleaned;
+};
 
 const extractCompany = (text: string, lines: string[]): string => {
-  const labeled = labeledValue(text, ["company", "公司", "employer"]);
+  const labeled = plausibleCompany(labeledValue(text, ["company", "公司", "employer", "organization"]));
   if (labeled) return labeled;
 
-  const openingSentence = cleanLine(lines[0] ?? "");
-  const naturalIntroduction = openingSentence.match(
-    /^([A-Z][A-Za-z0-9&.'-]*(?:\s+[A-Z][A-Za-z0-9&.'-]*){0,3})\s+(?:operates|is|builds|provides|offers|develops|creates|helps|has|was|works)\b/,
-  );
-  if (naturalIntroduction?.[1]) return naturalIntroduction[1];
+  // Common company-site and LinkedIn headings: "About Invert", "At Invert", "Join Invert".
+  for (const line of lines.slice(0, 40)) {
+    const heading = line.match(/^(?:about|at|join|welcome to)\s+([A-Z][A-Za-z0-9&.'-]*(?:\s+[A-Z][A-Za-z0-9&.'-]*){0,3})(?:\s*[|–—-]|[:,.]|$)/i);
+    const candidate = plausibleCompany(heading?.[1] ?? "");
+    if (candidate) return candidate;
+  }
 
-  const companyLine = lines.find((line) =>
-    /\b(?:inc\.?|ltd\.?|limited|gmbh|company|corp\.?|corporation|co\.)\b/i.test(line),
+  // Company introductions may appear after the job title rather than on the first line.
+  for (const line of lines.slice(0, 50)) {
+    const introduction = line.match(
+      /^(?:At\s+)?([A-Z][A-Za-z0-9&.'-]*(?:\s+[A-Z][A-Za-z0-9&.'-]*){0,3})\s+(?:operates|is|builds|provides|offers|develops|creates|helps|has|was|works|enables|makes|empowers|transforms|believes)\b/i,
+    );
+    const candidate = plausibleCompany(introduction?.[1] ?? "");
+    if (candidate) return candidate;
+  }
+
+  // "Invert's platform/product/team..." is another frequent introduction style.
+  for (const line of lines.slice(0, 50)) {
+    const possessive = line.match(
+      /^([A-Z][A-Za-z0-9&.'-]*(?:\s+[A-Z][A-Za-z0-9&.'-]*){0,3})['’]s\s+(?:platform|product|mission|team|technology|software|solution)\b/i,
+    );
+    const candidate = plausibleCompany(possessive?.[1] ?? "");
+    if (candidate) return candidate;
+  }
+
+  const legalEntityLine = lines.find((line) =>
+    /\b(?:inc\.?|ltd\.?|limited|gmbh|corp\.?|corporation|co\.)\b/i.test(line) &&
+    line.length <= 80,
   );
-  return companyLine?.replace(/\s*[|–—-]\s*.*$/, "").trim() ?? "";
+  return plausibleCompany(legalEntityLine?.replace(/\s*[|–—-]\s*.*$/, "") ?? "");
 };
 
 const extractCountry = (text: string, lines: string[]): string => {
-  const labeled = labeledValue(text, ["country", "location", "國家", "地點"]);
+  const labeled = labeledValue(text, ["country", "location", "所在地", "國家"]);
   if (labeled) return labeled;
 
   const euRemoteLine = lines.find(
-    (line) => /\b(?:fully\s+)?remote\b/i.test(line) && /\bEU\b/i.test(line),
+    (line) => /\b(?:fully\s+)?remote\b/i.test(line) && /\b(?:EU|EEA)\b/i.test(line),
   );
   if (euRemoteLine) return "European Union (Remote)";
 
   const locationLine = lines.find((line) =>
-    /\b(remote|taiwan|finland|germany|denmark|united states|united kingdom|australia|netherlands|singapore|japan)\b/i.test(
-      line,
-    ),
+    /\b(remote|taiwan|finland|germany|denmark|sweden|norway|france|spain|poland|ireland|united states|united kingdom|australia|netherlands|singapore|japan)\b/i.test(line),
   );
   if (!locationLine) return "";
 
-  const knownLocation = locationLine.match(
-    /\b(Taiwan|Finland|Germany|Denmark|United States|United Kingdom|Australia|Netherlands|Singapore|Japan|Remote)\b/i,
-  )?.[1];
-  return knownLocation ?? "";
+  return locationLine.match(
+    /\b(Taiwan|Finland|Germany|Denmark|Sweden|Norway|France|Spain|Poland|Ireland|United States|United Kingdom|Australia|Netherlands|Singapore|Japan|Remote)\b/i,
+  )?.[1] ?? "";
 };
 
 const extractPosition = (text: string, lines: string[]): string => {
-  const labeled = labeledValue(text, ["position", "job title", "role", "職位", "職稱"]);
+  const labeled = labeledValue(text, ["position", "job title", "role", "職位", "職缺"]);
   if (labeled) return labeled;
 
   const hiringSentence = text.match(
@@ -63,7 +100,8 @@ const extractPosition = (text: string, lines: string[]): string => {
   if (hiringSentence?.[1]) return cleanLine(hiringSentence[1]);
 
   const titleLine = lines.find((line) =>
-    /\b(engineer|designer|manager|developer|analyst|specialist|director|lead)\b/i.test(line),
+    /\b(engineer|designer|manager|developer|analyst|specialist|director|lead)\b/i.test(line) &&
+    line.length <= 100,
   );
   return titleLine ? cleanLine(titleLine.replace(/\s*[|–—]\s*.*$/, "")) : "";
 };
