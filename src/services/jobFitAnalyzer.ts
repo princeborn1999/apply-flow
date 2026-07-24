@@ -33,6 +33,10 @@ const skills: SkillRule[] = [
   { label: "Storybook", patterns: [/\bstorybook\b/i], candidateLevel: 0.25, weight: 5, gapText: "Storybook 經驗較少，可在 Side Project 補強。" },
   { label: "Accessibility", patterns: [/\bwcag\b/i, /\baccessibility\b/i, /\bsemantic html\b/i, /\bkeyboard navigation\b/i, /\baria\b/i], candidateLevel: 0.55, weight: 6, gapText: "完整 WCAG／Accessibility 實務仍可補強。" },
   { label: "Testing", patterns: [/\bjest\b/i, /\bunit tests?\b/i, /\bcomponent testing\b/i, /\btesting library\b/i], candidateLevel: 0.75, weight: 6 },
+  { label: "Playwright", patterns: [/\bplaywright\b/i], candidateLevel: 0.35, weight: 6, gapText: "Playwright 實務經驗較少，但可透過短期 Side Project 補強。" },
+  { label: "Puppeteer", patterns: [/\bpuppeteer\b/i], candidateLevel: 0.25, weight: 5, gapText: "Puppeteer／瀏覽器自動化經驗仍需補強。" },
+  { label: "Browser Extension", patterns: [/\bbrowser extensions?\b/i, /\bchrome extensions?\b/i, /\bwebextensions?\b/i], candidateLevel: 0.4, weight: 6, gapText: "Browser Extension 開發不是目前的主要經驗。" },
+  { label: "Browser Automation", patterns: [/\bbrowser automation\b/i, /\bheadless browsers?\b/i], candidateLevel: 0.55, weight: 6, gapText: "Browser Automation 有接觸空間，但仍需要實作證據。" },
   { label: "AI-assisted Development", patterns: [/\bgenai\b/i, /\bai[- ](?:first|assisted)\b/i, /\bagentic ai\b/i, /\bcopilot\b/i, /\bclaude code\b/i, /\bcodex\b/i, /\bdevin\b/i, /\bai tools?\b/i], candidateLevel: 1, weight: 6 },
   { label: "Mentoring / Lead", patterns: [/\bmentor(?:ing)?\b/i, /\blead(?:ing|ership)?\b/i, /\bsupport other (?:frontend )?developers\b/i], candidateLevel: 1, weight: 7 },
   { label: "Enterprise Applications", patterns: [/\benterprise\b/i, /\blarge-scale\b/i, /\bcomplex applications?\b/i], candidateLevel: 1, weight: 7 },
@@ -98,7 +102,12 @@ export function analyzeJobFit(jobDescription: string, parsed: ParsedJob): JobFit
   const hybrid = /\bhybrid\b/i.test(text);
   const onsite = /\bon[- ]?site\b|\bin[- ]office\b/i.test(text);
   const officeDays = text.match(/\b([1-5])\s+days?\s+(?:per|a)\s+week\b/i)?.[1];
-  const workMode = remote ? (euOnly ? "Remote · EU／EEA" : "Remote")
+  const berlinTimezone = /\bberlin\b.{0,40}(?:±|\+\/-|\+-)\s*3\s*(?:hours?|hrs?)\b|\b(?:±|\+\/-|\+-)\s*3\s*(?:hours?|hrs?).{0,40}\bberlin\b/is.test(text);
+  const europeanTimezone = /\b(?:cet|cest|european time zones?)\b|\bwithin\s+[1-4]\s+hours?\s+of\s+(?:berlin|cet|cest)\b/i.test(text);
+  const timezoneRestricted = berlinTimezone || europeanTimezone;
+  const workMode = remote ? (berlinTimezone ? "Remote · Berlin ±3 小時"
+    : europeanTimezone ? "Remote · 歐洲時區"
+      : euOnly ? "Remote · EU／EEA" : "Remote")
     : hybrid ? `Hybrid${officeDays ? ` · 每週約 ${officeDays} 天進辦公室` : ""}`
       : onsite ? "On-site" : "未知";
 
@@ -113,6 +122,7 @@ export function analyzeJobFit(jobDescription: string, parsed: ParsedJob): JobFit
   if (euOnly) score -= 0.45;
   if (localLanguage) score -= 1.4;
   if (noSponsorship) score -= 1.8;
+  if (timezoneRestricted) score -= 0.9;
   if ((isFullStack || isBackendLeaning) && backendGaps.length >= 2) score -= 0.45;
   if ((isFullStack || isBackendLeaning) && backendGaps.length >= 4) score -= 0.35;
 
@@ -127,6 +137,7 @@ export function analyzeJobFit(jobDescription: string, parsed: ParsedJob): JobFit
   if (noSponsorship) score = Math.min(score, 5.8);
   if (localLanguage) score = Math.min(score, 6.2);
   if (technicalFit < 55) score = Math.min(score, 6.4);
+  if (timezoneRestricted) score = Math.min(score, 7.3);
   if ((isFullStack || isBackendLeaning) && backendGaps.length >= 4) score = Math.min(score, 8.4);
   score = Math.max(3.5, Math.min(9.7, Math.round(score * 10) / 10));
   technicalFit = Math.max(35, Math.min(96, technicalFit));
@@ -139,6 +150,7 @@ export function analyzeJobFit(jobDescription: string, parsed: ParsedJob): JobFit
   if (noSponsorship) constraint = "但職缺要求已有工作權且不提供 Sponsorship，是主要限制。";
   else if (localLanguage) constraint = `但職缺要求 ${localLanguage}，語言可能是硬性門檻。`;
   else if (euOnly) constraint = "但職缺限 EU／EEA，需先確認所在地與工作權。";
+  else if (timezoneRestricted) constraint = "但 Remote 限制在 Berlin／歐洲時區附近；人在台灣時通常不符合，除非搬到歐洲。";
   else if ((isFullStack || isBackendLeaning) && backendGaps.length >= 2) {
     constraint = `但職位偏 Full Stack／Backend，${backendGaps.slice(0, 3).map((rule) => rule.label).join("、")} 是主要差距。`;
   } else if (gaps.length) {

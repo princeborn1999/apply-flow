@@ -40,6 +40,21 @@ const extractCompany = (text: string, lines: string[]): string => {
   const labeled = plausibleCompany(labeledValue(text, ["company", "公司", "employer", "organization"]));
   if (labeled) return labeled;
 
+  // Pasted ChatGPT/LinkedIn content often wraps the company in a Markdown link.
+  const linkedInMarkdown = text.match(
+    /\[([^\]\n]{1,60})\]\(https?:\/\/(?:[\w-]+\.)?linkedin\.com\/company\/[^)\s]+\/?(?:life\/?)?[^)]*\)/i,
+  );
+  const linkedCompany = plausibleCompany(linkedInMarkdown?.[1]?.replace(/\*+/g, "") ?? "");
+  if (linkedCompany) return linkedCompany;
+
+  const linkedInSlug = text.match(/linkedin\.com\/company\/([a-z0-9-]+)/i)?.[1];
+  if (linkedInSlug) {
+    const slugCompany = plausibleCompany(
+      linkedInSlug.split("-").map((part) => part ? part[0].toUpperCase() + part.slice(1) : "").join(" "),
+    );
+    if (slugCompany) return slugCompany;
+  }
+
   // Common English and Danish headings: "About Invert", "At Invert", "Om Opacity", "Hos Opacity".
   for (const line of lines.slice(0, 40)) {
     const heading = line.match(/^(?:about|at|join|welcome to|om|hos)\s+([A-ZÆØÅ][A-Za-zÆØÅæøå0-9&.'-]*(?:\s+[A-ZÆØÅ][A-Za-zÆØÅæøå0-9&.'-]*){0,3})(?:\s*[|–—-]|[:,.]|$)/i);
@@ -90,10 +105,11 @@ const extractCountry = (text: string, lines: string[]): string => {
   if (euRemoteLine) return "European Union (Remote)";
 
   const locationLine = lines.find((line) =>
-    /\b(remote|taiwan|finland|germany|denmark|sweden|norway|france|spain|poland|ireland|united states|united kingdom|australia|netherlands|singapore|japan)\b/i.test(line),
+    /\b(remote|berlin|taiwan|finland|germany|denmark|sweden|norway|france|spain|poland|ireland|united states|united kingdom|australia|netherlands|singapore|japan)\b/i.test(line),
   );
   if (!locationLine) return "";
 
+  if (/\bberlin\b/i.test(locationLine)) return "Germany";
   return locationLine.match(
     /\b(Taiwan|Finland|Germany|Denmark|Sweden|Norway|France|Spain|Poland|Ireland|United States|United Kingdom|Australia|Netherlands|Singapore|Japan|Remote)\b/i,
   )?.[1] ?? "";
