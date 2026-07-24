@@ -152,7 +152,7 @@ function Dashboard({ applications, onAdd, onView, onSyncGmail, syncingGmail }: {
     <div className="title-row"><div><h1 className="page-title">申請總覽</h1><p className="page-subtitle">查看申請數量、狀態分布與最近紀錄。</p></div><button className="button primary" onClick={onAdd}>＋ Add application</button></div>
     <section className="stats" aria-label="申請統計">
       <Stat label="Total Applied" value={applications.length} accent="#4c91c7" note="All applications" />
-      {statuses.map((s) => <Stat key={s} label={s} value={counts[s]} accent={colors[s]} note={s === "Waiting" ? "Needs follow-up" : "Current pipeline"} />)}
+      {statuses.map((s) => <Stat key={s} label={s} value={counts[s]} accent={colors[s]} note={s === "Waiting" ? "Needs follow-up" : "Current pipeline"} items={s === "Action Required" ? [...new Set(applications.filter((application) => application.status === s).map((application) => application.company))].sort() : undefined} />)}
     </section>
     <div className="dashboard-grid">
       <section className="panel"><div className="panel-header"><h2>Application activity</h2><span style={{ color: "var(--muted)", fontSize: 11 }}>Last 6 months</span></div><div className="panel-body"><div className="chart">{months.map((m) => <div className="bar-wrap" key={m.label}><div className="bar" style={{ height: `${Math.max(10, m.value * 20)}px` }}><b>{m.value}</b></div>{m.label}</div>)}</div></div></section>
@@ -162,8 +162,12 @@ function Dashboard({ applications, onAdd, onView, onSyncGmail, syncingGmail }: {
   </>;
 }
 
-function Stat({ label, value, accent, note }: { label:string; value:number; accent:string; note:string }) {
-  return <article className="stat" style={{ "--accent": accent } as React.CSSProperties}><div className="stat-top"><span>{label}</span><span className="stat-dot"/></div><div className="stat-value">{value}</div><div className="stat-note">{note}</div></article>;
+function Stat({ label, value, accent, note, items }: { label:string; value:number; accent:string; note:string; items?:string[] }) {
+  const tooltipId = items ? "action-required-companies" : undefined;
+  return <article className={`stat${items ? " has-tooltip" : ""}`} style={{ "--accent": accent } as React.CSSProperties} tabIndex={items ? 0 : undefined} aria-describedby={tooltipId}>
+    <div className="stat-top"><span>{label}</span><span className="stat-dot"/></div><div className="stat-value">{value}</div><div className="stat-note">{note}</div>
+    {items && <div className="stat-tooltip" id={tooltipId} role="tooltip"><strong>Companies</strong>{items.length ? <ul>{items.map((company) => <li key={company}>{company}</li>)}</ul> : <span>No companies right now</span>}</div>}
+  </article>;
 }
 
 function Applications({ applications, onAdd, onView, onDelete, onStatus }: { applications:JobApplication[]; onAdd:()=>void; onView:(a:JobApplication)=>void; onDelete:(a:JobApplication)=>void; onStatus:(a:JobApplication,s:ApplicationStatus)=>void }) {
