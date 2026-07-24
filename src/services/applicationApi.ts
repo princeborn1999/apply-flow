@@ -5,6 +5,16 @@ import { createApplicationKey } from "../utils/applicationKey";
 type ApiResponse<T> = { success: boolean; data?: T; duplicate?: boolean; application?: JobApplication; error?: string };
 const endpoint = process.env.NEXT_PUBLIC_GOOGLE_APPS_SCRIPT_URL || process.env.VITE_GOOGLE_APPS_SCRIPT_URL;
 const storageKey = "apply-flow-applications";
+const legacySeedKeys = new Set([
+  "linear::united states::product designer",
+  "hostaway::finland::senior frontend engineer",
+  "wise::united kingdom::ux engineer",
+  "canva::australia::frontend engineer",
+  "notion::united states::product engineer",
+  "gitlab::remote::senior product designer",
+  "miro::netherlands::design systems lead",
+  "vercel::united states::dx engineer",
+]);
 const pause = () => new Promise((resolve) => setTimeout(resolve, 280));
 
 function readMock(): JobApplication[] {
@@ -14,7 +24,12 @@ function readMock(): JobApplication[] {
     window.localStorage.setItem(storageKey, JSON.stringify(initialApplications));
     return initialApplications;
   }
-  return JSON.parse(saved) as JobApplication[];
+  const applications = JSON.parse(saved) as JobApplication[];
+  const cleaned = applications.filter(
+    (item) => !legacySeedKeys.has(createApplicationKey(item.company, item.country, item.position)),
+  );
+  if (cleaned.length !== applications.length) writeMock(cleaned);
+  return cleaned;
 }
 
 function writeMock(data: JobApplication[]) {

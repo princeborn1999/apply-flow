@@ -73,7 +73,7 @@ export default function ApplyFlowApp() {
       <div className="sidebar-note"><strong>Personal workspace</strong>第一版使用本機資料；設定 API URL 後即可與 Google Sheets 同步。</div>
     </aside>
     <main className="main">
-      <header className="header"><h1>{titles[page]}</h1><div className="profile"><span>Friday, July 24</span><span className="avatar">ME</span></div></header>
+      <header className="header"><h1>{titles[page]}</h1><div className="profile"><span>{new Intl.DateTimeFormat("en-US", { weekday: "long", month: "long", day: "numeric" }).format(new Date())}</span><span className="avatar">ME</span></div></header>
       <div className="content">
         {error && <div style={{ marginBottom: 16 }}><ErrorState message={error} /></div>}
         {loading ? <LoadingState /> : <>
@@ -95,15 +95,24 @@ export default function ApplyFlowApp() {
 
 function Dashboard({ applications, onAdd, onView }: { applications: JobApplication[]; onAdd: () => void; onView: (a: JobApplication) => void }) {
   const counts = Object.fromEntries(statuses.map((s) => [s, applications.filter((a) => a.status === s).length])) as Record<ApplicationStatus,number>;
-  const months = ["Feb","Mar","Apr","May","Jun","Jul"].map((label, i) => ({ label, value: [2,4,6,5,7,8][i] }));
+  const months = Array.from({ length: 6 }, (_, offset) => {
+    const date = new Date();
+    date.setDate(1);
+    date.setMonth(date.getMonth() - (5 - offset));
+    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+    return {
+      label: new Intl.DateTimeFormat("en-US", { month: "short" }).format(date),
+      value: applications.filter((application) => application.appliedDate.startsWith(monthKey)).length,
+    };
+  });
   return <>
     <div className="title-row"><div><p className="eyebrow">Your application pipeline</p><h1 className="page-title">Good morning.<br/>Keep the momentum going.</h1><p className="page-subtitle">所有申請進度一目了然，專注在下一個機會。</p></div><button className="button primary" onClick={onAdd}>＋ Add application</button></div>
     <section className="stats" aria-label="申請統計">
-      <Stat label="Total Applied" value={applications.length} accent="#174f3a" note="+3 this month" />
+      <Stat label="Total Applied" value={applications.length} accent="#4c91c7" note="All applications" />
       {statuses.map((s) => <Stat key={s} label={s} value={counts[s]} accent={colors[s]} note={s === "Waiting" ? "Needs follow-up" : "Current pipeline"} />)}
     </section>
     <div className="dashboard-grid">
-      <section className="panel"><div className="panel-header"><h2>Application activity</h2><span style={{ color: "var(--muted)", fontSize: 11 }}>Last 6 months</span></div><div className="panel-body"><div className="chart">{months.map((m) => <div className="bar-wrap" key={m.label}><div className="bar" style={{ height: `${m.value * 20}px` }}><b>{m.value}</b></div>{m.label}</div>)}</div></div></section>
+      <section className="panel"><div className="panel-header"><h2>Application activity</h2><span style={{ color: "var(--muted)", fontSize: 11 }}>Last 6 months</span></div><div className="panel-body"><div className="chart">{months.map((m) => <div className="bar-wrap" key={m.label}><div className="bar" style={{ height: `${Math.max(10, m.value * 20)}px` }}><b>{m.value}</b></div>{m.label}</div>)}</div></div></section>
       <section className="panel"><div className="panel-header"><h2>Pipeline health</h2><span style={{ color: "var(--muted)", fontSize: 11 }}>{applications.length} total</span></div><div className="panel-body status-list">{statuses.map((s) => <div className="status-line" key={s}><span>{s}</span><div className="progress"><span style={{ width: `${applications.length ? counts[s]/applications.length*100 : 0}%`, "--fill": colors[s] } as React.CSSProperties}/></div><b>{counts[s]}</b></div>)}</div></section>
     </div>
     <section className="panel" style={{ marginTop: 16 }}><div className="panel-header"><h2>Recent applications</h2><button className="button" onClick={() => window.scrollTo({ top: 0 })}>View all</button></div><div className="panel-body recent-list">{applications.slice(0,4).map((a) => <button key={createApplicationKey(a.company,a.country,a.position)} className="recent-item" onClick={() => onView(a)} style={{ borderLeft: 0, borderRight: 0, borderTop: 0, background: "white", textAlign: "left" }}><span className="company-logo">{a.company.slice(0,1)}</span><span><strong>{a.position}</strong><small>{a.company} · {a.country}</small></span><StatusBadge status={a.status}/></button>)}</div></section>
