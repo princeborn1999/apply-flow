@@ -14,6 +14,19 @@ export interface ParsedJob {
   position: string;
 }
 
+export interface JobFitAnalysis {
+  score: number;
+  technicalFit: number;
+  verdict: "非常推薦" | "值得投遞" | "可以考慮" | "不優先";
+  tone: "strong" | "good" | "caution" | "weak";
+  strengths: string[];
+  gaps: string[];
+  language: string;
+  workAuthorization: string;
+  workMode: string;
+  reason: string;
+}
+
 export interface ApplicationApi {
   getApplications(): Promise<JobApplication[]>;
   checkDuplicate(application: ParsedJob): Promise<JobApplication | null>;
