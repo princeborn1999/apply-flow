@@ -106,7 +106,7 @@ function Dashboard({ applications, onAdd, onView }: { applications: JobApplicati
     };
   });
   return <>
-    <div className="title-row"><div><p className="eyebrow">Your application pipeline</p><h1 className="page-title">Good morning.<br/>Keep the momentum going.</h1><p className="page-subtitle">所有申請進度一目了然，專注在下一個機會。</p></div><button className="button primary" onClick={onAdd}>＋ Add application</button></div>
+    <div className="title-row"><div><h1 className="page-title">申請總覽</h1><p className="page-subtitle">查看申請數量、狀態分布與最近紀錄。</p></div><button className="button primary" onClick={onAdd}>＋ Add application</button></div>
     <section className="stats" aria-label="申請統計">
       <Stat label="Total Applied" value={applications.length} accent="#4c91c7" note="All applications" />
       {statuses.map((s) => <Stat key={s} label={s} value={counts[s]} accent={colors[s]} note={s === "Waiting" ? "Needs follow-up" : "Current pipeline"} />)}
@@ -128,7 +128,7 @@ function Applications({ applications, onAdd, onView, onDelete, onStatus }: { app
   const countries=[...new Set(applications.map((a)=>a.country))].sort();
   const filtered=useMemo(()=>applications.filter((a)=>(!search||`${a.company} ${a.position}`.toLowerCase().includes(search.toLowerCase()))&&(!country||a.country===country)&&(!status||a.status===status)).sort((a,b)=>sort==="new"?b.appliedDate.localeCompare(a.appliedDate):a.appliedDate.localeCompare(b.appliedDate)),[applications,search,country,status,sort]);
   return <>
-    <div className="title-row"><div><p className="eyebrow">Application archive</p><h1 className="page-title">Every opportunity,<br/>in one place.</h1><p className="page-subtitle">{applications.length} 筆申請紀錄，依公司、國家與狀態快速篩選。</p></div><button className="button primary" onClick={onAdd}>＋ Add application</button></div>
+    <div className="title-row"><div><h1 className="page-title">申請紀錄</h1><p className="page-subtitle">共 {applications.length} 筆，可依公司、國家與狀態篩選。</p></div><button className="button primary" onClick={onAdd}>＋ Add application</button></div>
     <div className="toolbar"><div className="field"><label htmlFor="search">搜尋</label><input id="search" className="input" value={search} onChange={(e)=>setSearch(e.target.value)} placeholder="搜尋公司或職位…"/></div>
       <div className="field"><label htmlFor="country">國家</label><select id="country" className="select" value={country} onChange={(e)=>setCountry(e.target.value)}><option value="">所有國家</option>{countries.map((c)=><option key={c}>{c}</option>)}</select></div>
       <div className="field"><label htmlFor="status">狀態</label><select id="status" className="select" value={status} onChange={(e)=>setStatus(e.target.value)}><option value="">所有狀態</option>{statuses.map((s)=><option key={s}>{s}</option>)}</select></div>
@@ -145,7 +145,7 @@ function AddApplication({ onCreated, onView }: { onCreated:(a:JobApplication)=>v
   const incomplete=parsed&&(!parsed.company||!parsed.country||!parsed.position);
   const recheck=async()=>{if(!parsed)return;setBusy(true);try{setDuplicate(await applicationApi.checkDuplicate(parsed));setDialog(true);}finally{setBusy(false);}};
   return <>
-    <div><p className="eyebrow">Quick capture</p><h1 className="page-title">Paste once.<br/>We’ll organize the rest.</h1><p className="page-subtitle">貼上 LinkedIn 或公司官網的完整 Job Description，我們會先擷取資料並檢查是否重複。</p></div>
+    <div><h1 className="page-title">新增申請</h1><p className="page-subtitle">貼上 LinkedIn 或公司官網的完整 Job Description，系統會擷取資料並檢查是否重複。</p></div>
     <section className="add-card"><div className="add-intro"><div><h2>Paste Job Description</h2><p>Check 階段不會新增任何紀錄。</p></div><StatusBadge status="Waiting"/></div><div className="editor">
       <label htmlFor="jd" style={{ position:"absolute",left:"-10000px" }}>Paste Job Description</label><textarea id="jd" className="textarea" value={jd} onChange={(e)=>{setJd(e.target.value);setParsed(null);setError("");}} placeholder={"Paste the full job description here…\n\nExample:\nCompany: Hostaway\nLocation: Finland\nPosition: Senior Frontend Engineer"}/>
       {error&&<div style={{marginTop:14}}><ErrorState message={error}/></div>}
@@ -158,7 +158,7 @@ function AddApplication({ onCreated, onView }: { onCreated:(a:JobApplication)=>v
 }
 
 function ApplicationDetail({ application, onBack, onDelete, onStatus }: { application:JobApplication; onBack:()=>void; onDelete:(a:JobApplication)=>void; onStatus:(a:JobApplication,s:ApplicationStatus)=>void }) {
-  return <><div className="title-row"><div><button className="button" onClick={onBack}>← Back to applications</button><p className="eyebrow" style={{marginTop:24}}>Application record</p><h1 className="page-title">Application detail</h1></div><button className="button danger" onClick={()=>onDelete(application)}>刪除紀錄</button></div>
+  return <><div className="title-row"><div><button className="button" onClick={onBack}>← Back to applications</button><h1 className="page-title" style={{marginTop:24}}>申請詳細資料</h1></div><button className="button danger" onClick={()=>onDelete(application)}>刪除紀錄</button></div>
     <section className="detail-card"><div className="detail-hero"><div className="company-logo">{application.company.slice(0,1)}</div><div><h2>{application.position}</h2><p>{application.company} · {application.country}</p></div></div>
       <div className="detail-grid"><div><span>Company</span><strong>{application.company}</strong></div><div><span>Country</span><strong>{application.country}</strong></div><div><span>Applied date</span><strong>{application.appliedDate}</strong></div><div><span>Waiting days</span><strong>{waitingDays(application.appliedDate)} days</strong></div><div><span>Current status</span><StatusBadge status={application.status}/></div><div className="field"><label htmlFor="detail-status">更新狀態</label><select id="detail-status" className="select" value={application.status} onChange={(e)=>void onStatus(application,e.target.value as ApplicationStatus)}>{statuses.map((s)=><option key={s}>{s}</option>)}</select></div></div>
     </section></>;
