@@ -211,7 +211,14 @@ function setupGmailSyncTrigger() {
   ScriptApp.getProjectTriggers()
     .filter(function(trigger) { return trigger.getHandlerFunction() === 'scanGmailAndUpdateApplications'; })
     .forEach(function(trigger) { ScriptApp.deleteTrigger(trigger); });
-  ScriptApp.newTrigger('scanGmailAndUpdateApplications').timeBased().everyHours(1).create();
+  [9, 14, 20].forEach(function(hour) {
+    ScriptApp.newTrigger('scanGmailAndUpdateApplications')
+      .timeBased()
+      .atHour(hour)
+      .everyDays(1)
+      .inTimezone('Asia/Taipei')
+      .create();
+  });
 }
 
 function formatDate(value) {
