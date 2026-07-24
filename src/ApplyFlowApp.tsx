@@ -70,7 +70,7 @@ export default function ApplyFlowApp() {
         <button className={page === "applications" || page === "detail" ? "active" : ""} onClick={() => go("applications")}><span className="nav-icon">▤</span>Applications</button>
         <button className={page === "add" ? "active" : ""} onClick={() => go("add")}><span className="nav-icon">＋</span>Add Application</button>
       </nav>
-      <div className="sidebar-note"><strong>Personal workspace</strong>第一版使用本機資料；設定 API URL 後即可與 Google Sheets 同步。</div>
+      <div className="sidebar-note"><strong>Personal workspace</strong>Application data is synced with Google Sheets.</div>
     </aside>
     <main className="main">
       <header className="header"><h1>{titles[page]}</h1><div className="profile"><span>{new Intl.DateTimeFormat("en-US", { weekday: "long", month: "long", day: "numeric" }).format(new Date())}</span><span className="avatar">ME</span></div></header>

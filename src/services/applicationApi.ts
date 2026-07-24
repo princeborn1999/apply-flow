@@ -3,7 +3,10 @@ import type { ApplicationApi, ApplicationStatus, JobApplication, ParsedJob } fro
 import { createApplicationKey } from "../utils/applicationKey";
 
 type ApiResponse<T> = { success: boolean; data?: T; duplicate?: boolean; application?: JobApplication; error?: string };
-const endpoint = process.env.NEXT_PUBLIC_GOOGLE_APPS_SCRIPT_URL || process.env.VITE_GOOGLE_APPS_SCRIPT_URL;
+const endpoint =
+  process.env.NEXT_PUBLIC_GOOGLE_APPS_SCRIPT_URL ||
+  process.env.VITE_GOOGLE_APPS_SCRIPT_URL ||
+  "https://script.google.com/macros/s/AKfycbxr0M3gTQv9tmVVqX7eki1bRF8weV9XJ_8HP6TUpPLdZRicPFlPKSoebNrOs5MakFFp/exec";
 const storageKey = "apply-flow-applications";
 const legacySeedKeys = new Set([
   "linear::united states::product designer",
