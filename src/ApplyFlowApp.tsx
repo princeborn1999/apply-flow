@@ -9,8 +9,8 @@ import type { ApplicationStatus, JobApplication, JobFitAnalysis, ParsedJob } fro
 import { createApplicationKey, waitingDays } from "./utils/applicationKey";
 
 type Page = "dashboard" | "applications" | "add" | "detail";
-const statuses: ApplicationStatus[] = ["Waiting", "Interview", "Rejected", "Offer"];
-const colors: Record<ApplicationStatus, string> = { Waiting: "#e1ae36", Interview: "#6385cc", Rejected: "#c9645e", Offer: "#4b9a68" };
+const statuses: ApplicationStatus[] = ["Waiting", "Action Required", "Interview", "Rejected", "Offer"];
+const colors: Record<ApplicationStatus, string> = { Waiting: "#e1ae36", "Action Required": "#d88138", Interview: "#6385cc", Rejected: "#c9645e", Offer: "#4b9a68" };
 
 export default function ApplyFlowApp() {
   const [page, setPage] = useState<Page>("dashboard");
@@ -20,6 +20,7 @@ export default function ApplyFlowApp() {
   const [selected, setSelected] = useState<JobApplication | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<JobApplication | null>(null);
   const [toast, setToast] = useState("");
+  const [syncingGmail, setSyncingGmail] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true); setError("");
@@ -82,6 +83,22 @@ export default function ApplyFlowApp() {
       return next;
     });
   };
+  const syncGmail = async () => {
+    setSyncingGmail(true); setError("");
+    try {
+      const result = await applicationApi.syncGmail();
+      await load();
+      const summary = statuses
+        .filter((status) => result.counts[status])
+        .map((status) => `${status}: ${result.counts[status]}`)
+        .join(" · ");
+      setToast(`Gmail sync complete\n${summary || "No status emails matched"}\nUpdated: ${result.updatedApplications}`);
+    } catch {
+      setError("Gmail sync could not run. Google Apps Script may still need Gmail permission.");
+    } finally {
+      setSyncingGmail(false);
+    }
+  };
 
   const titles: Record<Page,string> = { dashboard: "Dashboard", applications: "Applications", add: "Add Application", detail: "Application Detail" };
   return <div className="shell">
@@ -99,7 +116,7 @@ export default function ApplyFlowApp() {
       <div className="content">
         {error && <div style={{ marginBottom: 16 }}><ErrorState message={error} /></div>}
         {loading ? <LoadingState /> : <>
-          {page === "dashboard" && <Dashboard applications={applications} onAdd={() => go("add")} onView={(app) => go("detail",app)} />}
+          {page === "dashboard" && <Dashboard applications={applications} onAdd={() => go("add")} onView={(app) => go("detail",app)} onSyncGmail={() => void syncGmail()} syncingGmail={syncingGmail} />}
           {page === "applications" && <Applications applications={applications} onAdd={() => go("add")} onView={(app) => go("detail",app)} onDelete={setDeleteTarget} onStatus={updateStatus} />}
           {page === "add" && <AddApplication onCreated={addCreated} onView={(app) => go("detail",app)} />}
           {page === "detail" && selected && <ApplicationDetail application={selected} onBack={() => go("applications")} onDelete={setDeleteTarget} onStatus={updateStatus} />}
@@ -115,7 +132,7 @@ export default function ApplyFlowApp() {
   </div>;
 }
 
-function Dashboard({ applications, onAdd, onView }: { applications: JobApplication[]; onAdd: () => void; onView: (a: JobApplication) => void }) {
+function Dashboard({ applications, onAdd, onView, onSyncGmail, syncingGmail }: { applications: JobApplication[]; onAdd: () => void; onView: (a: JobApplication) => void; onSyncGmail: () => void; syncingGmail: boolean }) {
   const counts = Object.fromEntries(statuses.map((s) => [s, applications.filter((a) => a.status === s).length])) as Record<ApplicationStatus,number>;
   const months = Array.from({ length: 6 }, (_, offset) => {
     const date = new Date();
@@ -128,6 +145,10 @@ function Dashboard({ applications, onAdd, onView }: { applications: JobApplicati
     };
   });
   return <>
+    <section className="gmail-sync-card" aria-label="Gmail application status sync">
+      <div><strong>Gmail status sync</strong><span>Checks recruiting replies and updates matched applications.</span></div>
+      <button className="button" disabled={syncingGmail} onClick={onSyncGmail}>{syncingGmail ? "Scanning Gmail…" : "Sync Gmail"}</button>
+    </section>
     <div className="title-row"><div><h1 className="page-title">申請總覽</h1><p className="page-subtitle">查看申請數量、狀態分布與最近紀錄。</p></div><button className="button primary" onClick={onAdd}>＋ Add application</button></div>
     <section className="stats" aria-label="申請統計">
       <Stat label="Total Applied" value={applications.length} accent="#4c91c7" note="All applications" />

@@ -1,5 +1,5 @@
 import { initialApplications } from "../mocks/applications";
-import type { ApplicationApi, ApplicationStatus, JobApplication, ParsedJob } from "../types/application";
+import type { ApplicationApi, ApplicationStatus, GmailSyncResult, JobApplication, ParsedJob } from "../types/application";
 import { createApplicationKey } from "../utils/applicationKey";
 
 type ApiResponse<T> = { success: boolean; data?: T; duplicate?: boolean; application?: JobApplication; error?: string };
@@ -84,5 +84,11 @@ export const applicationApi: ApplicationApi = {
     await pause();
     const key = createApplicationKey(application.company, application.country, application.position);
     writeMock(readMock().filter((item) => createApplicationKey(item.company, item.country, item.position) !== key));
+  },
+  async syncGmail() {
+    if (!endpoint) throw new Error("API_NOT_CONFIGURED");
+    const result = await request<GmailSyncResult>({ action: "scanGmail" });
+    if (!result.data) throw new Error("EMPTY_GMAIL_SYNC_RESULT");
+    return result.data;
   },
 };

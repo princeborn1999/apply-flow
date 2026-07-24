@@ -6,6 +6,7 @@ import { waitingDays } from "../utils/applicationKey";
 
 const statusStyle: Record<ApplicationStatus, { bg: string; fg: string }> = {
   Waiting: { bg: "#fff4d9", fg: "#8b6508" },
+  "Action Required": { bg: "#fff0e2", fg: "#9a4f16" },
   Interview: { bg: "#e8efff", fg: "#315ba5" },
   Rejected: { bg: "#fdebea", fg: "#a4413d" },
   Offer: { bg: "#e5f5ea", fg: "#267245" },

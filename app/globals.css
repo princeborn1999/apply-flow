@@ -139,6 +139,9 @@ td small { color: var(--muted); }
 .detail-grid span { display: block; margin-bottom: 7px; color: var(--muted); font-size: 11px; text-transform: uppercase; }
 .toast { position: fixed; right: 25px; bottom: 25px; z-index: 50; display: flex; align-items: flex-start; gap: 10px; max-width: min(420px, calc(100vw - 32px)); padding: 14px 17px; border-radius: 12px; background: #2f77ad; color: white; box-shadow: 0 12px 35px rgba(33,93,135,.22); font-size: 13px; line-height: 1.55; white-space: pre-line; }
 .toast-check { display: grid; place-items: center; flex: 0 0 20px; width: 20px; height: 20px; margin-top: 1px; border-radius: 50%; background: rgba(255,255,255,.18); font-weight: 800; }
+.gmail-sync-card { align-items: center; background: #edf7ff; border: 1px solid #c8e5f8; border-radius: 14px; display: flex; justify-content: space-between; margin: 0 0 16px; padding: 14px 16px; }
+.gmail-sync-card div { display: grid; gap: 3px; }
+.gmail-sync-card span { color: var(--muted); font-size: 12px; }
 
 @media (max-width: 1050px) {
   .stats { grid-template-columns: repeat(3,1fr); }
@@ -162,4 +165,5 @@ td small { color: var(--muted); }
   .editor-footer { align-items: stretch; flex-direction: column; }
   .editor-footer .button { width: 100%; }
   .profile span { display: none; }
+  .gmail-sync-card { align-items: stretch; flex-direction: column; gap: 12px; }
 }

@@ -1,4 +1,4 @@
-export type ApplicationStatus = "Waiting" | "Interview" | "Rejected" | "Offer";
+export type ApplicationStatus = "Waiting" | "Action Required" | "Interview" | "Rejected" | "Offer";
 
 export interface JobApplication {
   company: string;
@@ -12,6 +12,14 @@ export interface ParsedJob {
   company: string;
   country: string;
   position: string;
+}
+
+export interface GmailSyncResult {
+  scannedMessages: number;
+  matchedApplications: number;
+  updatedApplications: number;
+  counts: Partial<Record<ApplicationStatus, number>>;
+  syncedAt: string;
 }
 
 export interface JobFitAnalysis {
@@ -33,4 +41,5 @@ export interface ApplicationApi {
   createApplication(application: ParsedJob): Promise<JobApplication>;
   updateStatus(application: JobApplication, status: ApplicationStatus): Promise<JobApplication>;
   deleteApplication(application: JobApplication): Promise<void>;
+  syncGmail(): Promise<GmailSyncResult>;
 }
