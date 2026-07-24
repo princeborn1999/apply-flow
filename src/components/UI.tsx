@@ -45,7 +45,7 @@ export function ApplicationCheckDialog({ parsed, duplicate, busy, onClose, onCon
   return <Modal onClose={onClose} label={duplicate ? "重複申請提醒" : "確認申請"}>
     <div className="modal-head"><h2>{duplicate ? "你已經申請過此職位" : "尚未申請過此職位"}</h2><p>{duplicate ? "我們在現有紀錄中找到相同職缺。" : "請在外部網站完成申請後再新增紀錄。"}</p></div>
     <div className="modal-body"><dl className="detail-list">
-      <dt>公司</dt><dd>{parsed.company}</dd><dt>國家</dt><dd>{parsed.country}</dd><dt>職位</dt><dd>{parsed.position}</dd>
+      <dt>Company</dt><dd>{parsed.company}</dd><dt>Country</dt><dd>{parsed.country}</dd><dt>Position</dt><dd>{parsed.position}</dd>
       {duplicate && <><dt>申請日期</dt><dd>{duplicate.appliedDate}</dd><dt>目前狀態</dt><dd><StatusBadge status={duplicate.status} /></dd><dt>已等待</dt><dd>{waitingDays(duplicate.appliedDate)} 天</dd></>}
     </dl></div>
     <div className="modal-actions"><button className="button" onClick={onClose}>關閉</button>
