@@ -32,7 +32,7 @@ export default function ApplyFlowApp() {
   useEffect(() => { void load(); }, [load]);
   useEffect(() => {
     if (!toast) return;
-    const timer = window.setTimeout(() => setToast(""), 3000);
+    const timer = window.setTimeout(() => setToast(""), 5000);
     return () => window.clearTimeout(timer);
   }, [toast]);
 
@@ -58,7 +58,28 @@ export default function ApplyFlowApp() {
     } catch { setError("刪除失敗，請稍後再試。"); }
   };
   const addCreated = (application: JobApplication) => {
-    setApplications((items) => [application, ...items]); setToast("申請紀錄已新增");
+    setApplications((items) => {
+      const next = [application, ...items];
+      const today = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Asia/Taipei",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }).format(new Date());
+      const countryCounts = next
+        .filter((item) => item.appliedDate === today)
+        .reduce<Record<string, number>>((counts, item) => {
+          counts[item.country] = (counts[item.country] ?? 0) + 1;
+          return counts;
+        }, {});
+      const countrySummary = Object.entries(countryCounts)
+        .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+        .map(([country, count]) => `${country} ${count}`)
+        .join(" · ");
+      const totalToday = Object.values(countryCounts).reduce((sum, count) => sum + count, 0);
+      setToast(`Application added\nToday: ${countrySummary}\nTotal today: ${totalToday}`);
+      return next;
+    });
   };
 
   const titles: Record<Page,string> = { dashboard: "Dashboard", applications: "Applications", add: "Add Application", detail: "Application Detail" };
@@ -89,7 +110,7 @@ export default function ApplyFlowApp() {
       <div className="modal-body"><strong>{deleteTarget.position}</strong><div style={{ color: "var(--muted)", marginTop: 5 }}>{deleteTarget.company} · {deleteTarget.country}</div></div>
       <div className="modal-actions"><button className="button" onClick={() => setDeleteTarget(null)}>取消</button><button className="button danger" onClick={() => void remove()}>確認刪除</button></div>
     </Modal>}
-    {toast && <div className="toast" role="status">✓ {toast}</div>}
+    {toast && <div className="toast" role="status"><span className="toast-check">✓</span><span>{toast}</span></div>}
   </div>;
 }
 
