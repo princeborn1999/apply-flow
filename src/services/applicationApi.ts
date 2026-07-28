@@ -3,7 +3,8 @@ import type { ApplicationApi, ApplicationStatus, GmailSyncResult, JobApplication
 import { createApplicationKey } from "../utils/applicationKey";
 
 type ApiResponse<T> = { success: boolean; data?: T; duplicate?: boolean; application?: JobApplication; error?: string };
-const endpoint =
+const isDemoMode = import.meta.env.VITE_APPLYFLOW_DEMO === "true";
+const endpoint = isDemoMode ? "" :
   process.env.NEXT_PUBLIC_GOOGLE_APPS_SCRIPT_URL ||
   process.env.VITE_GOOGLE_APPS_SCRIPT_URL ||
   "https://script.google.com/macros/s/AKfycbxr0M3gTQv9tmVVqX7eki1bRF8weV9XJ_8HP6TUpPLdZRicPFlPKSoebNrOs5MakFFp/exec";

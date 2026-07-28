@@ -4,6 +4,10 @@ ApplyFlow 是一個個人使用的求職申請追蹤 Dashboard。它將分散在
 
 🔗 [Live Demo](https://apply-flow.princeborn1999.chatgpt.site/)
 
+🎤 [Interview Demo on GitHub Pages](https://princeborn1999.github.io/apply-flow/)
+
+> The GitHub Pages version runs in demo mode. Its data stays in each visitor's browser and does not access the owner's private Google Sheet or Gmail.
+
 ![ApplyFlow Dashboard](public/images/apply-flow-dashboard.png)
 
 ## 主要功能

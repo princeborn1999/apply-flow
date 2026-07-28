@@ -149,7 +149,7 @@ function Dashboard({ applications, onAdd, onView, onSyncGmail, syncingGmail }: {
       <div><strong>Gmail status sync</strong><span>Checks recruiting replies and updates matched applications.</span></div>
       <button className="button" disabled={syncingGmail} onClick={onSyncGmail}>{syncingGmail ? "Scanning Gmail…" : "Sync Gmail"}</button>
     </section>
-    <div className="title-row"><div><h1 className="page-title">申請總覽</h1><p className="page-subtitle">查看申請數量、狀態分布與最近紀錄。</p></div><button className="button primary" onClick={onAdd}>＋ Add application</button></div>
+    <div className="title-row"><div><h1 className="page-title">Application Overview</h1><p className="page-subtitle">View application totals, status distribution, and recent activity.</p></div><button className="button primary" onClick={onAdd}>＋ Add application</button></div>
     <section className="stats" aria-label="申請統計">
       <Stat label="Total Applied" value={applications.length} accent="#4c91c7" note="All applications" />
       {statuses.map((s) => <Stat key={s} label={s} value={counts[s]} accent={colors[s]} note={s === "Waiting" ? "Needs follow-up" : "Current pipeline"} items={s === "Action Required" ? [...new Set(applications.filter((application) => application.status === s).map((application) => application.company))].sort() : undefined} />)}
