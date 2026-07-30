@@ -11,6 +11,25 @@ import { createApplicationKey, waitingDays } from "./utils/applicationKey";
 type Page = "dashboard" | "applications" | "add" | "detail";
 const statuses: ApplicationStatus[] = ["Waiting", "Action Required", "Interview", "Rejected", "Offer"];
 const colors: Record<ApplicationStatus, string> = { Waiting: "#e1ae36", "Action Required": "#d88138", Interview: "#6385cc", Rejected: "#c9645e", Offer: "#4b9a68" };
+const applicationCountries = [
+  "Remote",
+  "Taiwan",
+  "Denmark",
+  "Finland",
+  "Germany",
+  "Ireland",
+  "Netherlands",
+  "Norway",
+  "Poland",
+  "Sweden",
+  "United Kingdom",
+  "France",
+  "Spain",
+  "United States",
+  "Australia",
+  "Singapore",
+  "Japan",
+];
 
 export default function ApplyFlowApp() {
   const [page, setPage] = useState<Page>("dashboard");
@@ -196,7 +215,7 @@ function AddApplication({ onCreated, onView }: { onCreated:(a:JobApplication)=>v
     <section className="add-card"><div className="add-intro"><div><h2>Paste Job Description</h2><p>Checking will not add a new application.</p></div><StatusBadge status="Waiting"/></div><div className="editor">
       <label htmlFor="jd" style={{ position:"absolute",left:"-10000px" }}>Paste Job Description</label><textarea id="jd" className="textarea" value={jd} onChange={(e)=>{setJd(e.target.value);setParsed(null);setAnalysis(null);setError("");}} placeholder={"Paste the full job description here…\n\nExample:\nCompany: Hostaway\nLocation: Finland\nPosition: Senior Frontend Engineer"}/>
       {error&&<div style={{marginTop:14}}><ErrorState message={error}/></div>}
-      {parsed&&<div className="parsed-fields"><div className="field"><label htmlFor="parsed-company">Company</label><input id="parsed-company" className="input" value={parsed.company} onChange={(e)=>setParsed({...parsed,company:e.target.value})}/></div><div className="field"><label htmlFor="parsed-country">Country</label><input id="parsed-country" className="input" value={parsed.country} onChange={(e)=>setParsed({...parsed,country:e.target.value})}/></div><div className="field"><label htmlFor="parsed-position">Position</label><input id="parsed-position" className="input" value={parsed.position} onChange={(e)=>setParsed({...parsed,position:e.target.value})}/></div></div>}
+      {parsed&&<div className="parsed-fields"><div className="field"><label htmlFor="parsed-company">Company</label><input id="parsed-company" className="input" value={parsed.company} onChange={(e)=>setParsed({...parsed,company:e.target.value})}/></div><div className="field"><label htmlFor="parsed-country">Country</label><select id="parsed-country" className="select" value={parsed.country} onChange={(e)=>setParsed({...parsed,country:e.target.value})}><option value="">Select a country</option>{parsed.country&&!applicationCountries.includes(parsed.country)&&<option value={parsed.country}>{parsed.country}</option>}{applicationCountries.map((country)=><option key={country} value={country}>{country}</option>)}</select></div><div className="field"><label htmlFor="parsed-position">Position</label><input id="parsed-position" className="input" value={parsed.position} onChange={(e)=>setParsed({...parsed,position:e.target.value})}/></div></div>}
       {incomplete&&<div className="notice">部分資訊無法準確擷取，請確認上方欄位後再次檢查。</div>}
       <div className="editor-footer"><small>{jd.length.toLocaleString()} characters · 規則式解析器，可在未來替換成 AI Parser</small>{parsed?<button className="button primary" disabled={busy||!parsed.company||!parsed.country||!parsed.position} onClick={()=>void recheck()}>{busy?"正在檢查…":"Check again"}</button>:<button className="button primary" disabled={busy||!jd.trim()} onClick={()=>void check()}>{busy?"正在解析…":"Check Application →"}</button>}</div>
     </div></section>
