@@ -30,7 +30,7 @@ export function LoadingState() {
   return <div className="loading" role="status"><div className="spinner" />正在載入申請資料…</div>;
 }
 
-export function EmptyState({ title = "找不到申請紀錄", detail = "調整篩選條件，或新增一筆求職申請。" }) {
+export function EmptyState({ title = "No applications found", detail = "Adjust your filters or add a new job application." }) {
   return <div className="empty"><div className="empty-mark">⌕</div><strong>{title}</strong><div>{detail}</div></div>;
 }
 
