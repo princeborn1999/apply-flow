@@ -26,6 +26,7 @@ const applicationCountries = [
   "France",
   "Spain",
   "United States",
+  "Canada",
   "Australia",
   "Singapore",
   "Japan",

@@ -19,6 +19,7 @@ const applicationDetails = [
   { label: "Address", value: "4F, No. 255 Wenhua St., Yangmei Dist., Taoyuan City 326104, Taiwan" },
   { label: "LinkedIn", value: "https://www.linkedin.com/in/aaron-huang-12941a3a8/" },
   { label: "GitHub", value: "https://github.com/princeborn1999" },
+  { label: "Portfolio", value: "https://princeborn1999.github.io" },
 ];
 
 export function StatusBadge({ status }: { status: ApplicationStatus }) {
