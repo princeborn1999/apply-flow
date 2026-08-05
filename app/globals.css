@@ -142,6 +142,10 @@ td small { color: var(--muted); }
 .application-tips-head span { color: #5f7d94; font-size: 10px; text-transform: uppercase; letter-spacing: .08em; }
 .application-tips-head h3 { margin: 3px 0 0; font-size: 15px; }
 .application-tips-head small { color: var(--muted); font-size: 11px; }
+.application-tips-tabs { display: flex; gap: 6px; padding: 10px 14px; border-bottom: 1px solid #dceaf3; background: #eef7fc; }
+.application-tips-tabs button { padding: 7px 11px; border: 1px solid transparent; border-radius: 8px; background: transparent; color: #5f7d94; cursor: pointer; font-size: 11px; font-weight: 700; }
+.application-tips-tabs button[aria-selected="true"] { border-color: #bdd9ea; background: white; color: #32739f; box-shadow: 0 1px 2px rgba(47,99,133,.08); }
+.application-tips-tabs button:focus-visible { outline: 3px solid rgba(67,145,198,.22); outline-offset: 2px; }
 .application-tips-list { display: grid; }
 .application-tip-row { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: center; gap: 12px; padding: 11px 14px; border-top: 1px solid #e5eff5; }
 .application-tip-row:first-child { border-top: 0; }
@@ -151,6 +155,7 @@ td small { color: var(--muted); }
 .copy-button { min-width: 62px; padding: 7px 10px; border: 1px solid #bdd9ea; border-radius: 8px; background: white; color: #32739f; cursor: pointer; font-size: 11px; font-weight: 700; }
 .copy-button:hover { background: #eaf6fd; }
 .copy-button:focus-visible { outline: 3px solid rgba(67,145,198,.22); outline-offset: 2px; }
+.salary-note { margin: 0; padding: 10px 14px 13px; border-top: 1px solid #e5eff5; color: var(--muted); font-size: 10px; line-height: 1.5; }
 .modal-actions { padding: 16px 23px 22px; display: flex; justify-content: flex-end; gap: 9px; }
 .detail-card { margin-top: 25px; padding: 28px; border: 1px solid var(--line); border-radius: 17px; background: white; }
 .detail-hero { display: flex; gap: 17px; align-items: center; padding-bottom: 25px; border-bottom: 1px solid var(--line); }

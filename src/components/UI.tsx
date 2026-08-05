@@ -20,6 +20,15 @@ const applicationDetails = [
   { label: "LinkedIn", value: "https://www.linkedin.com/in/aaron-huang-12941a3a8/" },
   { label: "GitHub", value: "https://github.com/princeborn1999" },
   { label: "Portfolio", value: "https://princeborn1999.github.io" },
+  { label: "Notice period", value: "1 month notice period" },
+];
+
+const salarySuggestions = [
+  { label: "Canada", value: "CAD 125,000" },
+  { label: "Sweden", value: "SEK 720,000" },
+  { label: "Germany", value: "EUR 85,000" },
+  { label: "United States", value: "USD 150,000" },
+  { label: "Denmark", value: "DKK 720,000" },
 ];
 
 export function StatusBadge({ status }: { status: ApplicationStatus }) {
@@ -54,6 +63,7 @@ export function ApplicationCheckDialog({ parsed, duplicate, analysis, busy, onCl
   parsed: ParsedJob; duplicate: JobApplication | null; analysis: JobFitAnalysis; busy: boolean; onClose: () => void; onConfirm: () => void; onView: (application: JobApplication) => void;
 }) {
   const [copied, setCopied] = useState("");
+  const [quickCopyTab, setQuickCopyTab] = useState<"details" | "salary">("details");
   const copy = async (label: string, value: string) => {
     await navigator.clipboard.writeText(value);
     setCopied(label);
@@ -79,12 +89,17 @@ export function ApplicationCheckDialog({ parsed, duplicate, analysis, busy, onCl
       </section>
       {!duplicate && <section className="application-tips" aria-label="常用申請資料">
         <div className="application-tips-head"><div><span>Quick copy</span><h3>常用申請資料</h3></div><small>按一下即可複製</small></div>
+        <div className="application-tips-tabs" role="tablist" aria-label="常用申請資料分類">
+          <button type="button" role="tab" aria-selected={quickCopyTab === "details"} onClick={() => setQuickCopyTab("details")}>Personal details</button>
+          <button type="button" role="tab" aria-selected={quickCopyTab === "salary"} onClick={() => setQuickCopyTab("salary")}>Salary suggestions</button>
+        </div>
         <div className="application-tips-list">
-          {applicationDetails.map((item) => <div className="application-tip-row" key={item.label}>
+          {(quickCopyTab === "details" ? applicationDetails : salarySuggestions).map((item) => <div className="application-tip-row" key={item.label}>
             <div><span>{item.label}</span><strong>{item.value}</strong></div>
             <button className="copy-button" type="button" onClick={() => void copy(item.label, item.value)}>{copied === item.label ? "Copied" : "Copy"}</button>
           </div>)}
         </div>
+        {quickCopyTab === "salary" && <p className="salary-note">Suggested annual gross salary for senior frontend roles. Adjust for role scope and location.</p>}
       </section>}
     </div>
     <div className="modal-actions"><button className="button" onClick={onClose}>關閉</button>
