@@ -17,6 +17,7 @@ const applicationDetails = [
   { label: "Email", value: "princeborn1999@gmail.com" },
   { label: "Phone", value: "+886 967195378" },
   { label: "Address", value: "4F, No. 255 Wenhua St., Yangmei Dist., Taoyuan City 326104, Taiwan" },
+  { label: "Location", value: "Taipei, Taiwan" },
   { label: "LinkedIn", value: "https://www.linkedin.com/in/aaron-huang-12941a3a8/" },
   { label: "GitHub", value: "https://github.com/princeborn1999" },
   { label: "Portfolio", value: "https://princeborn1999.github.io" },
