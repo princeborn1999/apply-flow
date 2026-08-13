@@ -101,6 +101,10 @@ td small { color: var(--muted); }
 .add-intro p { margin: 0; color: var(--muted); font-size: 12px; }
 .add-intro-actions { display: flex; align-items: center; gap: 10px; }
 .editor { padding: 24px; }
+.entry-mode-tabs { display: flex; gap: 6px; margin-bottom: 18px; padding: 5px; border: 1px solid #dceaf3; border-radius: 10px; background: #f5faff; width: fit-content; }
+.entry-mode-tabs button { border: 0; border-radius: 7px; padding: 8px 11px; background: transparent; color: #5f7d94; font-size: 12px; font-weight: 700; }
+.entry-mode-tabs button[aria-selected="true"] { background: white; color: #32739f; box-shadow: 0 1px 3px rgba(47,99,133,.14); }
+.manual-fields { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 18px; border-radius: 12px; background: #f6f8f6; }
 .textarea { min-height: 330px; resize: vertical; line-height: 1.6; }
 .editor-footer { display: flex; justify-content: space-between; align-items: center; gap: 15px; margin-top: 14px; }
 .editor-footer small { color: var(--muted); }
@@ -189,7 +193,7 @@ td small { color: var(--muted); }
   .stats { grid-template-columns: repeat(2,1fr); }
   .stat:first-child { grid-column: span 2; }
   .toolbar { grid-template-columns: 1fr; }
-  .parsed-fields, .detail-grid { grid-template-columns: 1fr; }
+  .parsed-fields, .manual-fields, .detail-grid { grid-template-columns: 1fr; }
   .editor, .add-intro { padding: 18px; }
   .add-intro { align-items: flex-start; }
   .add-intro-actions { align-items: flex-end; flex-direction: column-reverse; }
