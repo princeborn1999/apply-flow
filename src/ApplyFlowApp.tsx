@@ -15,6 +15,7 @@ const applicationCountries = [
   "Remote",
   "Taiwan",
   "Denmark",
+  "Estonia",
   "Finland",
   "Germany",
   "Ireland",
