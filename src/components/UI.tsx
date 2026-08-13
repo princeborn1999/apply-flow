@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { applicationCountries } from "../constants/countries";
 import type { ApplicationStatus, JobApplication, JobFitAnalysis, ParsedJob } from "../types/application";
 import { waitingDays } from "../utils/applicationKey";
 
@@ -30,7 +31,7 @@ const salarySuggestions = [
   { label: "Germany", value: "EUR 85,000" },
   { label: "United States", value: "USD 150,000" },
   { label: "Denmark", value: "DKK 720,000" },
-];
+].filter((suggestion) => applicationCountries.includes(suggestion.label));
 
 export function StatusBadge({ status }: { status: ApplicationStatus }) {
   const style = statusStyle[status];

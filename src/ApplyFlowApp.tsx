@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ApplicationCheckDialog, EmptyState, ErrorState, LoadingState, Modal, StatusBadge } from "./components/UI";
+import { applicationCountries } from "./constants/countries";
 import { applicationApi } from "./services/applicationApi";
 import { analyzeJobFit } from "./services/jobFitAnalyzer";
 import { ruleBasedJobParser } from "./services/jobParser";
@@ -11,29 +12,6 @@ import { createApplicationKey, waitingDays } from "./utils/applicationKey";
 type Page = "dashboard" | "applications" | "add" | "detail";
 const statuses: ApplicationStatus[] = ["Waiting", "Action Required", "Interview", "Rejected", "Offer"];
 const colors: Record<ApplicationStatus, string> = { Waiting: "#e1ae36", "Action Required": "#d88138", Interview: "#6385cc", Rejected: "#c9645e", Offer: "#4b9a68" };
-const applicationCountries = [
-  "Remote",
-  "Taiwan",
-  "Denmark",
-  "Estonia",
-  "Finland",
-  "Germany",
-  "Ireland",
-  "Netherlands",
-  "Norway",
-  "Poland",
-  "Sweden",
-  "Switzerland",
-  "United Kingdom",
-  "France",
-  "Spain",
-  "United States",
-  "Canada",
-  "Australia",
-  "Singapore",
-  "Japan",
-];
-
 export default function ApplyFlowApp() {
   const [page, setPage] = useState<Page>("dashboard");
   const [applications, setApplications] = useState<JobApplication[]>([]);
