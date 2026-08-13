@@ -27,13 +27,28 @@ const applicationDetails = isDemoMode ? [] : [
   { label: "Notice period", value: "1 month notice period" },
 ];
 
-const salarySuggestions = [
-  { label: "Canada", value: "CAD 125,000" },
-  { label: "Sweden", value: "SEK 720,000" },
-  { label: "Germany", value: "EUR 85,000" },
-  { label: "United States", value: "USD 150,000" },
-  { label: "Denmark", value: "DKK 720,000" },
-].filter((suggestion) => applicationCountries.includes(suggestion.label));
+const salaryByCountry: Record<(typeof applicationCountries)[number], string> = {
+  Remote: "USD 120,000",
+  Taiwan: "TWD 1,800,000",
+  Denmark: "DKK 720,000",
+  Estonia: "EUR 55,000",
+  Finland: "EUR 70,000",
+  Germany: "EUR 85,000",
+  Ireland: "EUR 90,000",
+  Netherlands: "EUR 85,000",
+  Norway: "NOK 900,000",
+  Poland: "PLN 300,000",
+  Sweden: "SEK 720,000",
+  Switzerland: "CHF 130,000",
+  "United Kingdom": "GBP 85,000",
+  France: "EUR 70,000",
+  Spain: "EUR 60,000",
+  "United States": "USD 150,000",
+  Canada: "CAD 125,000",
+  Australia: "AUD 150,000",
+};
+
+const salarySuggestions = applicationCountries.map((country) => ({ label: country, value: salaryByCountry[country] }));
 
 export function StatusBadge({ status }: { status: ApplicationStatus }) {
   const style = statusStyle[status];
