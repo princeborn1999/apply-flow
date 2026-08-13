@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ApplicationCheckDialog, EmptyState, ErrorState, LoadingState, Modal, QuickCopyDialog, StatusBadge } from "./components/UI";
 import { applicationCountries } from "./constants/countries";
 import { applicationApi } from "./services/applicationApi";
@@ -163,10 +163,25 @@ function Dashboard({ applications, onAdd, onView, onSyncGmail, syncingGmail }: {
 }
 
 function Stat({ label, value, accent, note, items }: { label:string; value:number; accent:string; note:string; items?:string[] }) {
+  const [pinned, setPinned] = useState(false);
+  const statRef = useRef<HTMLElement>(null);
   const tooltipId = items ? `${label.toLowerCase().replace(/\s+/g, "-")}-companies` : undefined;
-  return <article className={`stat${items ? " has-tooltip" : ""}`} style={{ "--accent": accent } as React.CSSProperties} tabIndex={items ? 0 : undefined} aria-describedby={tooltipId}>
+  useEffect(() => {
+    if (!pinned) return;
+    const closeOutside = (event: MouseEvent) => {
+      if (!statRef.current?.contains(event.target as Node)) setPinned(false);
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") { setPinned(false); statRef.current?.blur(); }
+    };
+    document.addEventListener("mousedown", closeOutside);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => { document.removeEventListener("mousedown", closeOutside); document.removeEventListener("keydown", closeOnEscape); };
+  }, [pinned]);
+  const togglePinned = () => items && setPinned((current) => !current);
+  return <article ref={statRef} className={`stat${items ? " has-tooltip" : ""}${pinned ? " is-pinned" : ""}`} style={{ "--accent": accent } as React.CSSProperties} tabIndex={items ? 0 : undefined} aria-describedby={tooltipId} aria-expanded={items ? pinned : undefined} onClick={togglePinned} onKeyDown={(event)=>{if(items&&(event.key==="Enter"||event.key===" ")){event.preventDefault();togglePinned();}}}>
     <div className="stat-top"><span>{label}</span><span className="stat-dot"/></div><div className="stat-value">{value}</div><div className="stat-note">{note}</div>
-    {items && <div className="stat-tooltip" id={tooltipId} role="tooltip"><strong>Companies</strong>{items.length ? <ul>{items.map((company) => <li key={company}>{company}</li>)}</ul> : <span>No companies right now</span>}</div>}
+    {items && <div className="stat-tooltip" id={tooltipId} role="tooltip" onClick={(event)=>event.stopPropagation()}><strong>Companies</strong>{items.length ? <ul>{items.map((company) => <li key={company}>{company}</li>)}</ul> : <span>No companies right now</span>}</div>}
   </article>;
 }
 
