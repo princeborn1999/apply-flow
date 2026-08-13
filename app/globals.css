@@ -98,6 +98,7 @@ td small { color: var(--muted); }
 .add-intro { padding: 21px 24px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; gap: 20px; }
 .add-intro h2 { margin: 0 0 5px; font-size: 16px; }
 .add-intro p { margin: 0; color: var(--muted); font-size: 12px; }
+.add-intro-actions { display: flex; align-items: center; gap: 10px; }
 .editor { padding: 24px; }
 .textarea { min-height: 330px; resize: vertical; line-height: 1.6; }
 .editor-footer { display: flex; justify-content: space-between; align-items: center; gap: 15px; margin-top: 14px; }
@@ -189,6 +190,8 @@ td small { color: var(--muted); }
   .toolbar { grid-template-columns: 1fr; }
   .parsed-fields, .detail-grid { grid-template-columns: 1fr; }
   .editor, .add-intro { padding: 18px; }
+  .add-intro { align-items: flex-start; }
+  .add-intro-actions { align-items: flex-end; flex-direction: column-reverse; }
   .editor-footer { align-items: stretch; flex-direction: column; }
   .editor-footer .button { width: 100%; }
   .profile span { display: none; }

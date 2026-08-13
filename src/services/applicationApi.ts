@@ -8,7 +8,7 @@ const endpoint = isDemoMode ? "" :
   process.env.NEXT_PUBLIC_GOOGLE_APPS_SCRIPT_URL ||
   process.env.VITE_GOOGLE_APPS_SCRIPT_URL ||
   "https://script.google.com/macros/s/AKfycbxr0M3gTQv9tmVVqX7eki1bRF8weV9XJ_8HP6TUpPLdZRicPFlPKSoebNrOs5MakFFp/exec";
-const storageKey = "apply-flow-applications";
+const storageKey = "apply-flow-demo-applications-v2";
 const legacySeedKeys = new Set([
   "linear::united states::product designer",
   "hostaway::finland::senior frontend engineer",

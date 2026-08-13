@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ApplicationCheckDialog, EmptyState, ErrorState, LoadingState, Modal, StatusBadge } from "./components/UI";
+import { ApplicationCheckDialog, EmptyState, ErrorState, LoadingState, Modal, QuickCopyDialog, StatusBadge } from "./components/UI";
 import { applicationCountries } from "./constants/countries";
 import { applicationApi } from "./services/applicationApi";
 import { analyzeJobFit } from "./services/jobFitAnalyzer";
@@ -186,14 +186,15 @@ function Applications({ applications, onAdd, onView, onDelete, onStatus }: { app
 }
 
 function AddApplication({ onCreated, onView }: { onCreated:(a:JobApplication)=>void; onView:(a:JobApplication)=>void }) {
-  const [jd,setJd]=useState(""); const [parsed,setParsed]=useState<ParsedJob|null>(null); const [analysis,setAnalysis]=useState<JobFitAnalysis|null>(null); const [duplicate,setDuplicate]=useState<JobApplication|null>(null); const [dialog,setDialog]=useState(false); const [busy,setBusy]=useState(false); const [error,setError]=useState("");
+  const [jd,setJd]=useState(""); const [parsed,setParsed]=useState<ParsedJob|null>(null); const [analysis,setAnalysis]=useState<JobFitAnalysis|null>(null); const [duplicate,setDuplicate]=useState<JobApplication|null>(null); const [dialog,setDialog]=useState(false); const [quickCopyOpen,setQuickCopyOpen]=useState(false); const [busy,setBusy]=useState(false); const [error,setError]=useState("");
+  const isDemoMode = import.meta.env.VITE_APPLYFLOW_DEMO === "true";
   const check=async()=>{ if(jd.trim().length<20){setError("請貼上較完整的職缺說明後再檢查。");return;} setBusy(true);setError(""); try{const result=await ruleBasedJobParser.parse(jd);const completedResult={...result,position:result.position||"Frontend Developer"};setParsed(completedResult);setAnalysis(analyzeJobFit(jd,completedResult));if(completedResult.company&&completedResult.country){setDuplicate(await applicationApi.checkDuplicate(completedResult));setDialog(true);}}catch{setError("解析職缺內容時發生錯誤，請稍後再試。");}finally{setBusy(false);}};
   const confirm=async()=>{if(!parsed)return;setBusy(true);try{const created=await applicationApi.createApplication(parsed);onCreated(created);setJd("");setParsed(null);setDialog(false);}catch{setError("新增申請紀錄失敗，請稍後再試。");}finally{setBusy(false);}};
   const incomplete=parsed&&(!parsed.company||!parsed.country||!parsed.position);
   const recheck=async()=>{if(!parsed)return;setBusy(true);try{setDuplicate(await applicationApi.checkDuplicate(parsed));setDialog(true);}finally{setBusy(false);}};
   return <>
     <div><h1 className="page-title">Add Application</h1><p className="page-subtitle">Paste the complete job description from LinkedIn or a company website. The app will extract the details and check for duplicates.</p></div>
-    <section className="add-card"><div className="add-intro"><div><h2>Paste Job Description</h2><p>Checking will not add a new application.</p></div><StatusBadge status="Waiting"/></div><div className="editor">
+    <section className="add-card"><div className="add-intro"><div><h2>Paste Job Description</h2><p>Checking will not add a new application.</p></div><div className="add-intro-actions">{!isDemoMode && <button className="button" type="button" onClick={()=>setQuickCopyOpen(true)}>Quick copy</button>}<StatusBadge status="Waiting"/></div></div><div className="editor">
       <label htmlFor="jd" style={{ position:"absolute",left:"-10000px" }}>Paste Job Description</label><textarea id="jd" className="textarea" value={jd} onChange={(e)=>{setJd(e.target.value);setParsed(null);setAnalysis(null);setError("");}} placeholder={"Paste the full job description here…\n\nExample:\nCompany: Hostaway\nLocation: Finland\nPosition: Senior Frontend Engineer"}/>
       {error&&<div style={{marginTop:14}}><ErrorState message={error}/></div>}
       {parsed&&<div className="parsed-fields"><div className="field"><label htmlFor="parsed-company">Company</label><input id="parsed-company" className="input" value={parsed.company} onChange={(e)=>setParsed({...parsed,company:e.target.value})}/></div><div className="field"><label htmlFor="parsed-country">Country</label><select id="parsed-country" className="select" value={parsed.country} onChange={(e)=>setParsed({...parsed,country:e.target.value})}><option value="">Select a country</option>{parsed.country&&!applicationCountries.includes(parsed.country)&&<option value={parsed.country}>{parsed.country}</option>}{applicationCountries.map((country)=><option key={country} value={country}>{country}</option>)}</select></div><div className="field"><label htmlFor="parsed-position">Position</label><input id="parsed-position" className="input" value={parsed.position} onChange={(e)=>setParsed({...parsed,position:e.target.value})}/></div></div>}
@@ -201,6 +202,7 @@ function AddApplication({ onCreated, onView }: { onCreated:(a:JobApplication)=>v
       <div className="editor-footer"><small>{jd.length.toLocaleString()} characters · 規則式解析器，可在未來替換成 AI Parser</small>{parsed?<button className="button primary" disabled={busy||!parsed.company||!parsed.country||!parsed.position} onClick={()=>void recheck()}>{busy?"正在檢查…":"Check again"}</button>:<button className="button primary" disabled={busy||!jd.trim()} onClick={()=>void check()}>{busy?"正在解析…":"Check Application →"}</button>}</div>
     </div></section>
     {dialog&&parsed&&analysis&&<ApplicationCheckDialog parsed={parsed} duplicate={duplicate} analysis={analysis} busy={busy} onClose={()=>setDialog(false)} onConfirm={()=>void confirm()} onView={(a)=>{setDialog(false);onView(a);}}/>}
+    {quickCopyOpen&&<QuickCopyDialog onClose={()=>setQuickCopyOpen(false)}/>}
   </>;
 }
 

@@ -13,7 +13,9 @@ const statusStyle: Record<ApplicationStatus, { bg: string; fg: string }> = {
   Offer: { bg: "#e5f5ea", fg: "#267245" },
 };
 
-const applicationDetails = [
+const isDemoMode = import.meta.env.VITE_APPLYFLOW_DEMO === "true";
+
+const applicationDetails = isDemoMode ? [] : [
   { label: "Full name", value: "Aaron Huang" },
   { label: "Email", value: "princeborn1999@gmail.com" },
   { label: "Phone", value: "+886 967195378" },
@@ -61,9 +63,7 @@ export function Modal({ children, onClose, label }: { children: React.ReactNode;
   </div>;
 }
 
-export function ApplicationCheckDialog({ parsed, duplicate, analysis, busy, onClose, onConfirm, onView }: {
-  parsed: ParsedJob; duplicate: JobApplication | null; analysis: JobFitAnalysis; busy: boolean; onClose: () => void; onConfirm: () => void; onView: (application: JobApplication) => void;
-}) {
+function QuickCopyPanel() {
   const [copied, setCopied] = useState("");
   const [quickCopyTab, setQuickCopyTab] = useState<"details" | "salary">("details");
   const copy = async (label: string, value: string) => {
@@ -71,6 +71,33 @@ export function ApplicationCheckDialog({ parsed, duplicate, analysis, busy, onCl
     setCopied(label);
   };
 
+  return <section className="application-tips" aria-label="常用申請資料">
+    <div className="application-tips-head"><div><span>Quick copy</span><h3>常用申請資料</h3></div><small>按一下即可複製</small></div>
+    <div className="application-tips-tabs" role="tablist" aria-label="常用申請資料分類">
+      <button type="button" role="tab" aria-selected={quickCopyTab === "details"} onClick={() => setQuickCopyTab("details")}>Personal details</button>
+      <button type="button" role="tab" aria-selected={quickCopyTab === "salary"} onClick={() => setQuickCopyTab("salary")}>Salary suggestions</button>
+    </div>
+    <div className="application-tips-list">
+      {(quickCopyTab === "details" ? applicationDetails : salarySuggestions).map((item) => <div className="application-tip-row" key={item.label}>
+        <div><span>{item.label}</span><strong>{item.value}</strong></div>
+        <button className="copy-button" type="button" onClick={() => void copy(item.label, item.value)}>{copied === item.label ? "Copied" : "Copy"}</button>
+      </div>)}
+    </div>
+    {quickCopyTab === "salary" && <p className="salary-note">Suggested annual gross salary for senior frontend roles. Adjust for role scope and location.</p>}
+  </section>;
+}
+
+export function QuickCopyDialog({ onClose }: { onClose: () => void }) {
+  return <Modal onClose={onClose} label="Quick copy application information">
+    <div className="modal-head"><h2>Quick copy</h2><p>Copy frequently used application details without checking a job description.</p></div>
+    <div className="modal-body"><QuickCopyPanel /></div>
+    <div className="modal-actions"><button className="button primary" onClick={onClose}>Done</button></div>
+  </Modal>;
+}
+
+export function ApplicationCheckDialog({ parsed, duplicate, analysis, busy, onClose, onConfirm, onView }: {
+  parsed: ParsedJob; duplicate: JobApplication | null; analysis: JobFitAnalysis; busy: boolean; onClose: () => void; onConfirm: () => void; onView: (application: JobApplication) => void;
+}) {
   return <Modal onClose={onClose} label={duplicate ? "重複申請提醒" : "確認申請"}>
     <div className="modal-head"><h2>{duplicate ? "你已經申請過此職位" : "尚未申請過此職位"}</h2><p>{duplicate ? "我們在現有紀錄中找到相同職缺。" : "請在外部網站完成申請後再新增紀錄。"}</p></div>
     <div className="modal-body"><dl className="detail-list">
@@ -89,20 +116,7 @@ export function ApplicationCheckDialog({ parsed, duplicate, analysis, busy, onCl
         </div>
         <div className="fit-section"><h4>推薦原因</h4><p>{analysis.reason}</p></div>
       </section>
-      {!duplicate && <section className="application-tips" aria-label="常用申請資料">
-        <div className="application-tips-head"><div><span>Quick copy</span><h3>常用申請資料</h3></div><small>按一下即可複製</small></div>
-        <div className="application-tips-tabs" role="tablist" aria-label="常用申請資料分類">
-          <button type="button" role="tab" aria-selected={quickCopyTab === "details"} onClick={() => setQuickCopyTab("details")}>Personal details</button>
-          <button type="button" role="tab" aria-selected={quickCopyTab === "salary"} onClick={() => setQuickCopyTab("salary")}>Salary suggestions</button>
-        </div>
-        <div className="application-tips-list">
-          {(quickCopyTab === "details" ? applicationDetails : salarySuggestions).map((item) => <div className="application-tip-row" key={item.label}>
-            <div><span>{item.label}</span><strong>{item.value}</strong></div>
-            <button className="copy-button" type="button" onClick={() => void copy(item.label, item.value)}>{copied === item.label ? "Copied" : "Copy"}</button>
-          </div>)}
-        </div>
-        {quickCopyTab === "salary" && <p className="salary-note">Suggested annual gross salary for senior frontend roles. Adjust for role scope and location.</p>}
-      </section>}
+      {!duplicate && !isDemoMode && <QuickCopyPanel />}
     </div>
     <div className="modal-actions"><button className="button" onClick={onClose}>關閉</button>
       {duplicate ? <button className="button primary" onClick={() => onView(duplicate)}>查看既有紀錄</button> : <button className="button primary" disabled={busy} onClick={onConfirm}>{busy ? "正在新增…" : "我已完成申請"}</button>}
