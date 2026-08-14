@@ -28,24 +28,24 @@ const applicationDetails = isDemoMode ? [] : [
 ];
 
 const salaryByCountry: Record<(typeof applicationCountries)[number], string> = {
-  Remote: "USD 120,000",
-  Taiwan: "TWD 1,800,000",
-  Denmark: "DKK 720,000",
-  Estonia: "EUR 55,000",
-  Finland: "EUR 70,000",
-  Germany: "EUR 85,000",
-  Ireland: "EUR 90,000",
-  Netherlands: "EUR 85,000",
-  Norway: "NOK 900,000",
-  Poland: "PLN 300,000",
-  Sweden: "SEK 720,000",
-  Switzerland: "CHF 130,000",
-  "United Kingdom": "GBP 85,000",
-  France: "EUR 70,000",
-  Spain: "EUR 60,000",
-  "United States": "USD 150,000",
-  Canada: "CAD 125,000",
-  Australia: "AUD 150,000",
+  Remote: "USD 90,000–100,000",
+  Taiwan: "TWD 1,200,000–1,300,000",
+  Denmark: "DKK 600,000–650,000",
+  Estonia: "EUR 45,000–50,000",
+  Finland: "EUR 55,000–60,000",
+  Germany: "EUR 70,000–75,000",
+  Ireland: "EUR 70,000–75,000",
+  Netherlands: "EUR 70,000–75,000",
+  Norway: "NOK 750,000–800,000",
+  Poland: "PLN 240,000–260,000",
+  Sweden: "SEK 600,000–650,000",
+  Switzerland: "CHF 105,000–115,000",
+  "United Kingdom": "GBP 65,000–70,000",
+  France: "EUR 55,000–60,000",
+  Spain: "EUR 45,000–50,000",
+  "United States": "USD 120,000–130,000",
+  Canada: "CAD 95,000–105,000",
+  Australia: "AUD 120,000–130,000",
 };
 
 const salarySuggestions = applicationCountries.map((country) => ({ label: country, value: salaryByCountry[country] }));
@@ -98,7 +98,7 @@ function QuickCopyPanel() {
         <button className="copy-button" type="button" onClick={() => void copy(item.label, item.value)}>{copied === item.label ? "Copied" : "Copy"}</button>
       </div>)}
     </div>
-    {quickCopyTab === "salary" && <p className="salary-note">Suggested annual gross salary for senior frontend roles. Adjust for role scope and location.</p>}
+    {quickCopyTab === "salary" && <p className="salary-note">Conservative annual gross salary range. Adjust for role scope, city, benefits, and employment type.</p>}
   </section>;
 }
 
