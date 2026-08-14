@@ -15,17 +15,19 @@ const statusStyle: Record<ApplicationStatus, { bg: string; fg: string }> = {
 
 const isDemoMode = import.meta.env.VITE_APPLYFLOW_DEMO === "true";
 
-const applicationDetails = isDemoMode ? [] : [
-  { label: "Full name", value: "Aaron Huang" },
-  { label: "Email", value: "princeborn1999@gmail.com" },
-  { label: "Phone", value: "+886 967195378" },
-  { label: "Address", value: "4F, No. 255 Wenhua St., Yangmei Dist., Taoyuan City 326104, Taiwan" },
-  { label: "Location", value: "Taipei, Taiwan" },
-  { label: "LinkedIn", value: "https://www.linkedin.com/in/aaron-huang-12941a3a8/" },
-  { label: "GitHub", value: "https://github.com/princeborn1999" },
-  { label: "Portfolio", value: "https://princeborn1999.github.io" },
-  { label: "Notice period", value: "1 month notice period" },
-];
+const privateApplicationDetails = [
+  { label: "Full name", value: import.meta.env.VITE_APPLYFLOW_FULL_NAME ?? "" },
+  { label: "Email", value: import.meta.env.VITE_APPLYFLOW_EMAIL ?? "" },
+  { label: "Phone", value: import.meta.env.VITE_APPLYFLOW_PHONE ?? "" },
+  { label: "Address", value: import.meta.env.VITE_APPLYFLOW_ADDRESS ?? "" },
+  { label: "Location", value: import.meta.env.VITE_APPLYFLOW_LOCATION ?? "" },
+  { label: "LinkedIn", value: import.meta.env.VITE_APPLYFLOW_LINKEDIN ?? "" },
+  { label: "GitHub", value: import.meta.env.VITE_APPLYFLOW_GITHUB ?? "" },
+  { label: "Portfolio", value: import.meta.env.VITE_APPLYFLOW_PORTFOLIO ?? "" },
+  { label: "Notice period", value: import.meta.env.VITE_APPLYFLOW_NOTICE_PERIOD ?? "" },
+].filter((item) => item.value);
+
+const applicationDetails = isDemoMode ? [] : privateApplicationDetails;
 
 const salaryByCountry: Record<(typeof applicationCountries)[number], string> = {
   Remote: "USD 80,000",
