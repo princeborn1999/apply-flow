@@ -28,12 +28,12 @@ const applicationDetails = isDemoMode ? [] : [
 ];
 
 const salaryByCountry: Record<(typeof applicationCountries)[number], string> = {
-  Remote: "USD 90,000",
+  Remote: "USD 80,000",
   Taiwan: "TWD 1,200,000",
   Denmark: "DKK 600,000",
   Estonia: "EUR 45,000",
   Finland: "EUR 55,000",
-  Germany: "EUR 70,000",
+  Germany: "EUR 65,000",
   Ireland: "EUR 70,000",
   Netherlands: "EUR 70,000",
   Norway: "NOK 750,000",
