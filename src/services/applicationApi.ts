@@ -21,6 +21,14 @@ const legacySeedKeys = new Set([
 ]);
 const pause = () => new Promise((resolve) => setTimeout(resolve, 280));
 
+function trimApplication(application: ParsedJob): ParsedJob {
+  return {
+    company: application.company.trim(),
+    country: application.country.trim(),
+    position: application.position.trim(),
+  };
+}
+
 function readMock(): JobApplication[] {
   if (typeof window === "undefined") return initialApplications;
   const saved = window.localStorage.getItem(storageKey);
@@ -60,15 +68,17 @@ export const applicationApi: ApplicationApi = {
     return readMock();
   },
   async checkDuplicate(application) {
-    if (endpoint) return (await request({ action: "checkDuplicate", ...application })).application ?? null;
+    const cleaned = trimApplication(application);
+    if (endpoint) return (await request({ action: "checkDuplicate", ...cleaned })).application ?? null;
     await pause();
-    const key = createApplicationKey(application.company, application.country, application.position);
+    const key = createApplicationKey(cleaned.company, cleaned.country, cleaned.position);
     return readMock().find((item) => createApplicationKey(item.company, item.country, item.position) === key) ?? null;
   },
   async createApplication(application: ParsedJob) {
-    if (endpoint) return (await request<JobApplication>({ action: "createApplication", ...application })).application!;
+    const cleaned = trimApplication(application);
+    if (endpoint) return (await request<JobApplication>({ action: "createApplication", ...cleaned })).application!;
     await pause();
-    const created: JobApplication = { ...application, appliedDate: new Date().toISOString().slice(0, 10), status: "Waiting" };
+    const created: JobApplication = { ...cleaned, appliedDate: new Date().toISOString().slice(0, 10), status: "Waiting" };
     writeMock([created, ...readMock()]);
     return created;
   },
