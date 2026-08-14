@@ -34,7 +34,6 @@ const salaryByCountry: Record<(typeof applicationCountries)[number], string> = {
   Taiwan: "TWD 1,200,000",
   Denmark: "DKK 600,000",
   Estonia: "EUR 45,000",
-  Finland: "EUR 55,000",
   Germany: "EUR 65,000",
   Ireland: "EUR 70,000",
   Netherlands: "EUR 70,000",

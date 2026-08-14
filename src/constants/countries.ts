@@ -3,7 +3,6 @@ export const applicationCountries = [
   "Taiwan",
   "Denmark",
   "Estonia",
-  "Finland",
   "Germany",
   "Ireland",
   "Netherlands",
