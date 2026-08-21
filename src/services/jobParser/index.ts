@@ -105,13 +105,13 @@ const extractCountry = (text: string, lines: string[]): string => {
   if (euRemoteLine) return "European Union (Remote)";
 
   const locationLine = lines.find((line) =>
-    /\b(remote|berlin|taiwan|germany|denmark|sweden|norway|france|spain|poland|ireland|united states|united kingdom|australia|netherlands|singapore|japan)\b/i.test(line),
+    /\b(remote|berlin|taiwan|germany|denmark|sweden|france|spain|poland|ireland|united states|united kingdom|netherlands|singapore|japan)\b/i.test(line),
   );
   if (!locationLine) return "";
 
   if (/\bberlin\b/i.test(locationLine)) return "Germany";
   return locationLine.match(
-    /\b(Taiwan|Germany|Denmark|Sweden|Norway|France|Spain|Poland|Ireland|United States|United Kingdom|Australia|Netherlands|Singapore|Japan|Remote)\b/i,
+    /\b(Taiwan|Germany|Denmark|Sweden|France|Spain|Poland|Ireland|United States|United Kingdom|Netherlands|Singapore|Japan|Remote)\b/i,
   )?.[1] ?? "";
 };
 

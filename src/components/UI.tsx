@@ -37,16 +37,13 @@ const salaryByCountry: Record<(typeof applicationCountries)[number], string> = {
   Germany: "EUR 65,000",
   Ireland: "EUR 70,000",
   Netherlands: "EUR 70,000",
-  Norway: "NOK 750,000",
   Poland: "PLN 240,000",
   Sweden: "SEK 600,000",
-  Switzerland: "CHF 105,000",
   "United Kingdom": "GBP 65,000",
   France: "EUR 55,000",
   Spain: "EUR 45,000",
   "United States": "USD 120,000",
   Canada: "CAD 95,000",
-  Australia: "AUD 120,000",
 };
 
 const salarySuggestions = applicationCountries.map((country) => ({ label: country, value: salaryByCountry[country] }));
