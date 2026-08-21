@@ -82,6 +82,34 @@ button:disabled { cursor: not-allowed; opacity: .6; }
 .badge { display: inline-flex; align-items: center; gap: 6px; border-radius: 99px; padding: 5px 9px; font-size: 11px; font-weight: 800; background: var(--badge-bg); color: var(--badge-fg); white-space: nowrap; }
 .badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 .toolbar { margin: 20px 0 14px; display: grid; grid-template-columns: 1.6fr .7fr .7fr .7fr; gap: 10px; }
+.country-insights { margin: 0 0 14px; border: 1px solid var(--line); border-radius: 15px; background: var(--surface); overflow: hidden; }
+.insights-heading { padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); }
+.insights-heading h2 { margin: 0; font-size: 15px; }
+.insights-heading p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+.insights-heading > span { color: var(--muted); font-size: 12px; }
+.country-insights-grid { display: grid; grid-template-columns: minmax(260px, .78fr) minmax(360px, 1.22fr); }
+.country-donut-panel { display: flex; align-items: center; gap: 20px; padding: 22px; border-right: 1px solid var(--line); }
+.country-donut { flex: 0 0 138px; width: 138px; height: 138px; border-radius: 50%; display: grid; place-items: center; }
+.country-donut > div { width: 84px; height: 84px; border-radius: 50%; background: var(--surface); display: grid; place-content: center; text-align: center; }
+.country-donut strong { font-size: 25px; line-height: 1; }
+.country-donut span { color: var(--muted); font-size: 11px; margin-top: 4px; }
+.country-legend { display: grid; gap: 8px; min-width: 0; flex: 1; }
+.country-legend > div { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; align-items: center; gap: 7px; font-size: 12px; }
+.country-legend span { width: 9px; height: 9px; border-radius: 99px; }
+.country-legend b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.country-legend em { color: var(--muted); font-style: normal; }
+.country-status-panel { padding: 20px; min-width: 0; }
+.country-status-title { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.country-status-title h3 { margin: 0; font-size: 13px; white-space: nowrap; }
+.country-status-title > div { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 7px 10px; }
+.country-status-title span { display: inline-flex; align-items: center; gap: 4px; color: var(--muted); font-size: 10px; }
+.country-status-title i { width: 7px; height: 7px; border-radius: 50%; }
+.country-status-list { display: grid; gap: 14px; margin-top: 20px; }
+.country-status-row { display: grid; grid-template-columns: 112px minmax(0, 1fr); align-items: center; gap: 12px; }
+.country-status-row strong { display: block; font-size: 12px; }
+.country-status-row small { color: var(--muted); font-size: 10px; }
+.country-status-bar { height: 11px; overflow: hidden; display: flex; border-radius: 99px; background: #edf1f4; }
+.country-status-bar span { height: 100%; min-width: 3px; }
 .field { display: grid; gap: 7px; }
 .field label { font-size: 12px; font-weight: 750; }
 .input, .select, .textarea { width: 100%; border: 1px solid #d9dfdb; border-radius: 10px; background: white; color: var(--ink); padding: 11px 12px; }
@@ -180,6 +208,8 @@ td small { color: var(--muted); }
   .stats { grid-template-columns: repeat(3,1fr); }
   .dashboard-grid { grid-template-columns: 1fr; }
   .toolbar { grid-template-columns: 1fr 1fr; }
+  .country-insights-grid { grid-template-columns: 1fr; }
+  .country-donut-panel { border-right: 0; border-bottom: 1px solid var(--line); }
 }
 @media (max-width: 760px) {
   .shell { grid-template-columns: 1fr; }
@@ -193,6 +223,10 @@ td small { color: var(--muted); }
   .stats { grid-template-columns: repeat(2,1fr); }
   .stat:first-child { grid-column: span 2; }
   .toolbar { grid-template-columns: 1fr; }
+  .country-donut-panel { align-items: flex-start; flex-direction: column; }
+  .country-status-title { align-items: flex-start; flex-direction: column; }
+  .country-status-title > div { justify-content: flex-start; }
+  .country-status-row { grid-template-columns: 1fr; gap: 6px; }
   .parsed-fields, .manual-fields, .detail-grid { grid-template-columns: 1fr; }
   .editor, .add-intro { padding: 18px; }
   .add-intro { align-items: flex-start; }

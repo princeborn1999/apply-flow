@@ -196,8 +196,35 @@ function Applications({ applications, onAdd, onView, onDelete, onStatus }: { app
       <div className="field"><label htmlFor="status">Status</label><select id="status" className="select" value={status} onChange={(e)=>setStatus(e.target.value)}><option value="">All statuses</option>{statuses.map((s)=><option key={s}>{s}</option>)}</select></div>
       <div className="field"><label htmlFor="sort">Sort by date</label><select id="sort" className="select" value={sort} onChange={(e)=>setSort(e.target.value)}><option value="new">Newest first</option><option value="old">Oldest first</option></select></div>
     </div>
+    {filtered.length > 0 && <CountryInsights applications={filtered}/>} 
     <section className="panel">{filtered.length===0?<EmptyState/>:<div className="table-wrap"><table><thead><tr><th>Company</th><th>Position</th><th>Applied date</th><th>Status</th><th>Waiting days</th><th>Actions</th></tr></thead><tbody>{filtered.map((a)=><tr key={createApplicationKey(a.company,a.country,a.position)}><td><strong>{a.company}</strong><small>{a.country}</small></td><td>{a.position}</td><td>{a.appliedDate}</td><td><select className="select" aria-label={`Update ${a.company} status`} value={a.status} onChange={(e)=>void onStatus(a,e.target.value as ApplicationStatus)} style={{ padding: 7, width: 120 }}>{statuses.map((s)=><option key={s}>{s}</option>)}</select></td><td>{waitingDays(a.appliedDate)} days</td><td><div className="actions"><button className="icon-button" aria-label="View details" onClick={()=>onView(a)}>↗</button><button className="icon-button" aria-label="Delete application" onClick={()=>onDelete(a)}>×</button></div></td></tr>)}</tbody></table></div>}</section>
   </>;
+}
+
+const countryChartColors = ["#4c91c7", "#6385cc", "#75a9a4", "#d8a43d", "#bd7aae", "#d37a70", "#8b9a76", "#9a86c6"];
+
+function CountryInsights({ applications }: { applications: JobApplication[] }) {
+  const countries = [...new Set(applications.map((application) => application.country))]
+    .map((country) => ({
+      country,
+      total: applications.filter((application) => application.country === country).length,
+      statuses: Object.fromEntries(statuses.map((status) => [status, applications.filter((application) => application.country === country && application.status === status).length])) as Record<ApplicationStatus, number>,
+    }))
+    .sort((a, b) => b.total - a.total || a.country.localeCompare(b.country));
+  let percentageStart = 0;
+  const segments = countries.map((item, index) => {
+    const percentageEnd = percentageStart + item.total / applications.length * 100;
+    const segment = `${countryChartColors[index % countryChartColors.length]} ${percentageStart}% ${percentageEnd}%`;
+    percentageStart = percentageEnd;
+    return segment;
+  });
+  return <section className="country-insights" aria-label="Country application insights">
+    <div className="insights-heading"><div><h2>Country insights</h2><p>Based on the applications currently shown below.</p></div><span>{applications.length} applications</span></div>
+    <div className="country-insights-grid">
+      <div className="country-donut-panel"><div className="country-donut" style={{ background: `conic-gradient(${segments.join(", ")})` }} role="img" aria-label="Application share by country"><div><strong>{applications.length}</strong><span>shown</span></div></div><div className="country-legend">{countries.map((item, index) => <div key={item.country}><span style={{ background: countryChartColors[index % countryChartColors.length] }}/><b>{item.country}</b><em>{item.total}</em></div>)}</div></div>
+      <div className="country-status-panel"><div className="country-status-title"><h3>Status by country</h3><div>{statuses.map((status) => <span key={status}><i style={{ background: colors[status] }}/>{status}</span>)}</div></div><div className="country-status-list">{countries.map((item) => <div className="country-status-row" key={item.country}><div><strong>{item.country}</strong><small>{item.total} applications</small></div><div className="country-status-bar" role="img" aria-label={`${item.country}: ${statuses.map((status) => `${item.statuses[status]} ${status}`).join(", ")}`}>{statuses.map((status) => item.statuses[status] > 0 && <span key={status} style={{ width: `${item.statuses[status] / item.total * 100}%`, background: colors[status] }}/>)}</div></div>)}</div></div>
+    </div>
+  </section>;
 }
 
 function AddApplication({ applications, onCreated, onView }: { applications:JobApplication[]; onCreated:(a:JobApplication)=>void; onView:(a:JobApplication)=>void }) {
